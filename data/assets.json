@@ -1,0 +1,86 @@
+[
+  {
+    "id": "design-system-reference-md",
+    "name": "Design System Reference MD",
+    "type": "reference",
+    "category": "design-system",
+    "source": "uploaded-md",
+    "path": "references/design-system.md",
+    "relatedSkills": ["design-system-reference-skill", "ux-ui-handoff-fullstep-skill"],
+    "status": "active",
+    "duplicateRisk": "low",
+    "migrationCandidate": true
+  },
+  {
+    "id": "kickoff-template-md",
+    "name": "Kickoff Report Template",
+    "type": "template",
+    "category": "report",
+    "source": "internal-library",
+    "path": "assets/kickoff-template.md",
+    "relatedSkills": ["kickoff-report-template-skill"],
+    "status": "active",
+    "duplicateRisk": "medium",
+    "migrationCandidate": false
+  },
+  {
+    "id": "render-milestone-py",
+    "name": "render_milestone.py",
+    "type": "script",
+    "category": "wbs-visualization",
+    "source": "engineering",
+    "path": "scripts/render_milestone.py",
+    "relatedSkills": ["html-milestone-generator-skill"],
+    "status": "active",
+    "duplicateRisk": "low",
+    "migrationCandidate": false
+  },
+  {
+    "id": "kickoff-report-output",
+    "name": "kickoff_report.md (run-001)",
+    "type": "output",
+    "category": "report",
+    "source": "sandbox-run",
+    "path": "outputs/run-001/kickoff_report.md",
+    "relatedSkills": ["kickoff-report-template-skill"],
+    "status": "pending",
+    "duplicateRisk": "low",
+    "migrationCandidate": false
+  },
+  {
+    "id": "ux-checklist-asset",
+    "name": "UX Checklist (asset pack)",
+    "type": "asset",
+    "category": "ux-process",
+    "source": "uploaded-md",
+    "path": "assets/ux-checklist.md",
+    "relatedSkills": ["ux-process-asset-skill"],
+    "status": "active",
+    "duplicateRisk": "high",
+    "migrationCandidate": true
+  },
+  {
+    "id": "legacy-handoff-md",
+    "name": "old_handoff_template.md (legacy)",
+    "type": "template",
+    "category": "handoff",
+    "source": "legacy-share-drive",
+    "path": "inbox/old_handoff_template.md",
+    "relatedSkills": [],
+    "status": "needs-review",
+    "duplicateRisk": "high",
+    "migrationCandidate": true
+  },
+  {
+    "id": "brand-tokens-json",
+    "name": "brand-tokens.json",
+    "type": "reference",
+    "category": "design-system",
+    "source": "design-tokens-export",
+    "path": "references/brand-tokens.json",
+    "relatedSkills": ["design-system-reference-skill"],
+    "status": "active",
+    "duplicateRisk": "low",
+    "migrationCandidate": false
+  }
+]

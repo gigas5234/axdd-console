@@ -1,0 +1,43 @@
+[
+  {
+    "id": "kickoff-report-hook",
+    "name": "Kickoff Report Hook",
+    "description": "사용자 입력에 착수보고서 관련 키워드가 포함되면 착수보고서 Work Unit을 실행한다.",
+    "conditions": {
+      "keywords": ["착수보고서", "프로젝트 시작", "kickoff", "제안서", "보고서"]
+    },
+    "targetWorkUnit": "kickoff-report-workunit",
+    "priority": 1,
+    "enabled": true
+  },
+  {
+    "id": "ux-ui-planning-hook",
+    "name": "UX/UI Planning Hook",
+    "description": "UX/UI 기획 관련 키워드 발생 시 UX/UI Planning Work Unit을 실행한다.",
+    "conditions": {
+      "keywords": [
+        "UX 기획",
+        "UI 화면",
+        "사용자 플로우",
+        "IA",
+        "디자인 파운데이션",
+        "핸드오프",
+        "handoff"
+      ]
+    },
+    "targetWorkUnit": "ux-ui-planning-workunit",
+    "priority": 1,
+    "enabled": true
+  },
+  {
+    "id": "cicd-setup-hook",
+    "name": "CI/CD Setup Hook",
+    "description": "CI/CD 및 배포 환경 키워드 발생 시 CI/CD Setup Work Unit을 실행한다.",
+    "conditions": {
+      "keywords": ["CI/CD", "배포 환경", "GitHub Actions", "Vercel", "릴리즈"]
+    },
+    "targetWorkUnit": "cicd-setup-workunit",
+    "priority": 2,
+    "enabled": true
+  }
+]

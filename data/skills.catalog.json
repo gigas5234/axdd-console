@@ -1,0 +1,210 @@
+[
+  {
+    "id": "simple-summary-skill",
+    "name": "Simple Summary",
+    "category": "simple",
+    "description": "원본 문서를 받아 한 페이지 분량의 요약 마크다운을 만든다.",
+    "input": ["raw_document.md"],
+    "output": ["summary.md"],
+    "files": {
+      "skill": "skills/simple/simple-summary-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": [],
+      "tests": ["tests/summary-length-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "0.1.0",
+    "status": "verified",
+    "relatedWorkUnits": ["kickoff-report-workunit", "ux-ui-planning-workunit"],
+    "tags": ["summary", "markdown"]
+  },
+  {
+    "id": "design-system-reference-skill",
+    "name": "Design System Reference",
+    "category": "reference",
+    "description": "고객사 디자인 시스템 MD를 참고해 UI Foundation 문서를 만든다.",
+    "input": ["design-system-reference.md", "requirements.md"],
+    "output": ["ui_foundation.md"],
+    "files": {
+      "skill": "skills/reference/design-system-reference-skill/SKILL.md",
+      "references": ["references/design-system.md", "references/brand-tokens.json"],
+      "scripts": [],
+      "assets": [],
+      "tests": ["tests/ui-foundation-checklist.md"]
+    },
+    "owner": "Product Design",
+    "version": "0.2.0",
+    "status": "verified",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["design-system", "ui-foundation"]
+  },
+  {
+    "id": "kickoff-report-template-skill",
+    "name": "Kickoff Report Template",
+    "category": "template",
+    "description": "착수보고서 표준 템플릿으로 보고서를 자동 생성한다.",
+    "input": ["project_brief.md"],
+    "output": ["kickoff_report.md"],
+    "files": {
+      "skill": "skills/template/kickoff-report-template-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/kickoff-template.md"],
+      "tests": ["tests/template-sections-check.md"]
+    },
+    "owner": "Operations",
+    "version": "0.3.1",
+    "status": "verified",
+    "relatedWorkUnits": ["kickoff-report-workunit"],
+    "tags": ["template", "report"]
+  },
+  {
+    "id": "html-milestone-generator-skill",
+    "name": "HTML Milestone Generator",
+    "category": "script",
+    "description": "WBS JSON을 받아 HTML 마일스톤 시각화를 생성한다.",
+    "input": ["wbs.json"],
+    "output": ["milestone.html"],
+    "files": {
+      "skill": "skills/script/html-milestone-generator-skill/SKILL.md",
+      "references": [],
+      "scripts": ["scripts/render_milestone.py"],
+      "assets": ["assets/milestone-template.html"],
+      "tests": ["tests/html-validity-check.md"]
+    },
+    "owner": "Engineering",
+    "version": "0.1.2",
+    "status": "tested",
+    "relatedWorkUnits": ["cicd-setup-workunit"],
+    "tags": ["script", "html", "wbs"]
+  },
+  {
+    "id": "ux-process-asset-skill",
+    "name": "UX Process Asset",
+    "category": "asset",
+    "description": "UX 작업 단위에 필요한 프로세스/룰/체크리스트/예시 풀셋을 적용한다.",
+    "input": ["raw_requirement.md"],
+    "output": ["ux_process_plan.md"],
+    "files": {
+      "skill": "skills/asset/ux-process-asset-skill/SKILL.md",
+      "references": ["references/ux-process-rule.md"],
+      "scripts": [],
+      "assets": [
+        "assets/ux-checklist.md",
+        "assets/ux-examples.md",
+        "assets/ux-summary.md"
+      ],
+      "tests": ["tests/process-coverage-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "0.2.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ux", "process", "asset"]
+  },
+  {
+    "id": "ux-ui-handoff-fullstep-skill",
+    "name": "UX/UI Handoff Full-step",
+    "category": "fullstep",
+    "description": "레퍼런스 + 스크립트 + 어셋을 통합해 UX/UI 핸드오프 산출물을 만든다.",
+    "input": ["requirement_summary.md", "design-system-reference.md"],
+    "output": ["handoff.md", "ui_foundation.md", "ia.md"],
+    "files": {
+      "skill": "skills/fullstep/ux-ui-handoff-fullstep-skill/SKILL.md",
+      "references": ["references/design-system.md"],
+      "scripts": ["scripts/extract_components.py"],
+      "assets": ["assets/handoff-template.md", "assets/component-spec-template.md"],
+      "tests": ["tests/handoff-completeness-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "0.4.0",
+    "status": "needs-review",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ux", "ui", "handoff", "fullstep"]
+  },
+  {
+    "id": "asset-metadata-search-skill",
+    "name": "Asset Metadata Search",
+    "category": "metadata",
+    "description": "자산 레포지토리 메타데이터를 검색해 관련 자산 후보를 제안한다.",
+    "input": ["query.md"],
+    "output": ["related_assets.md"],
+    "files": {
+      "skill": "skills/metadata/asset-metadata-search-skill/SKILL.md",
+      "references": ["references/asset-schema.md"],
+      "scripts": ["scripts/search_assets.py"],
+      "assets": [],
+      "tests": ["tests/search-precision-check.md"]
+    },
+    "owner": "Engineering",
+    "version": "0.1.0",
+    "status": "draft",
+    "relatedWorkUnits": [],
+    "tags": ["metadata", "search"]
+  },
+  {
+    "id": "output-validation-skill",
+    "name": "Output Validation",
+    "category": "test",
+    "description": "산출물 누락, 템플릿 준수, 형식 일관성을 자동 검증한다.",
+    "input": ["output_bundle/"],
+    "output": ["validation_report.md"],
+    "files": {
+      "skill": "skills/test/output-validation-skill/SKILL.md",
+      "references": ["references/validation-rules.md"],
+      "scripts": ["scripts/run_validation.py"],
+      "assets": ["assets/validation-checklist.md"],
+      "tests": ["tests/self-test.md"]
+    },
+    "owner": "QA",
+    "version": "0.3.0",
+    "status": "verified",
+    "relatedWorkUnits": [
+      "kickoff-report-workunit",
+      "ux-ui-planning-workunit",
+      "cicd-setup-workunit"
+    ],
+    "tags": ["validation", "test", "qa"]
+  },
+  {
+    "id": "stakeholder-map-skill",
+    "name": "Stakeholder Map",
+    "category": "simple",
+    "description": "프로젝트 이해관계자 맵 표를 자동으로 만든다.",
+    "input": ["project_brief.md"],
+    "output": ["stakeholder_map.md"],
+    "files": {
+      "skill": "skills/simple/stakeholder-map-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": [],
+      "tests": ["tests/stakeholder-completeness.md"]
+    },
+    "owner": "Operations",
+    "version": "0.1.0",
+    "status": "verified",
+    "relatedWorkUnits": ["kickoff-report-workunit"],
+    "tags": ["stakeholder", "simple"]
+  },
+  {
+    "id": "risk-checklist-skill",
+    "name": "Risk Checklist",
+    "category": "template",
+    "description": "리스크/이슈 체크리스트 템플릿을 채워 risk_log를 만든다.",
+    "input": ["project_brief.md"],
+    "output": ["risk_log.md"],
+    "files": {
+      "skill": "skills/template/risk-checklist-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/risk-template.md"],
+      "tests": ["tests/risk-template-check.md"]
+    },
+    "owner": "Operations",
+    "version": "0.2.0",
+    "status": "tested",
+    "relatedWorkUnits": ["kickoff-report-workunit"],
+    "tags": ["risk", "template"]
+  }
+]

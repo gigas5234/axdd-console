@@ -1,0 +1,61 @@
+[
+  {
+    "id": "kickoff-report-workunit",
+    "name": "Kickoff Report Work Unit",
+    "description": "프로젝트 착수 시 필요한 요약·이해관계자·리스크·보고서·검증을 자동 실행한다.",
+    "triggerHooks": ["kickoff-report-hook"],
+    "skills": [
+      "simple-summary-skill",
+      "stakeholder-map-skill",
+      "risk-checklist-skill",
+      "kickoff-report-template-skill",
+      "output-validation-skill"
+    ],
+    "input": ["project_brief.md"],
+    "output": ["kickoff_report.md", "stakeholder_map.md", "risk_log.md", "next_step.md"],
+    "validationSkill": "output-validation-skill",
+    "owner": "Operations",
+    "status": "approved"
+  },
+  {
+    "id": "ux-ui-planning-workunit",
+    "name": "UX/UI Planning Work Unit",
+    "description": "요구사항으로부터 UX 구조, IA, UI Foundation, Handoff 문서를 생성한다.",
+    "triggerHooks": ["ux-ui-planning-hook"],
+    "skills": [
+      "simple-summary-skill",
+      "design-system-reference-skill",
+      "ux-process-asset-skill",
+      "ux-ui-handoff-fullstep-skill",
+      "output-validation-skill"
+    ],
+    "input": ["raw_requirement.md"],
+    "output": [
+      "requirement_summary.md",
+      "user_flow.md",
+      "ia.md",
+      "ui_foundation.md",
+      "handoff.md",
+      "review_checklist.md"
+    ],
+    "validationSkill": "output-validation-skill",
+    "owner": "Product Design",
+    "status": "needs-review"
+  },
+  {
+    "id": "cicd-setup-workunit",
+    "name": "CI/CD Setup Work Unit",
+    "description": "CI/CD 환경 설정 및 배포 체크리스트, 릴리즈 노트를 생성한다.",
+    "triggerHooks": ["cicd-setup-hook"],
+    "skills": [
+      "simple-summary-skill",
+      "html-milestone-generator-skill",
+      "output-validation-skill"
+    ],
+    "input": ["wbs.json", "infra_brief.md"],
+    "output": ["cicd_plan.md", "deployment_checklist.md", "release_note.md", "milestone.html"],
+    "validationSkill": "output-validation-skill",
+    "owner": "Engineering",
+    "status": "draft"
+  }
+]

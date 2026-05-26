@@ -1,0 +1,76 @@
+[
+  {
+    "id": "run-001",
+    "prompt": "신규 AXDD 프로젝트 착수보고서 만들어줘",
+    "matchedHook": "kickoff-report-hook",
+    "selectedWorkUnit": "kickoff-report-workunit",
+    "selectedSkills": [
+      "simple-summary-skill",
+      "stakeholder-map-skill",
+      "risk-checklist-skill",
+      "kickoff-report-template-skill",
+      "output-validation-skill"
+    ],
+    "status": "passed",
+    "outputs": ["kickoff_report.md", "risk_log.md", "next_step.md"],
+    "validation": { "status": "passed", "issues": [] },
+    "createdAt": "2026-05-27T09:00:00+09:00"
+  },
+  {
+    "id": "run-002",
+    "prompt": "UX 기획해서 핸드오프 문서까지 만들어줘",
+    "matchedHook": "ux-ui-planning-hook",
+    "selectedWorkUnit": "ux-ui-planning-workunit",
+    "selectedSkills": [
+      "simple-summary-skill",
+      "design-system-reference-skill",
+      "ux-process-asset-skill",
+      "ux-ui-handoff-fullstep-skill",
+      "output-validation-skill"
+    ],
+    "status": "needs-review",
+    "outputs": [
+      "requirement_summary.md",
+      "user_flow.md",
+      "ia.md",
+      "ui_foundation.md",
+      "handoff.md"
+    ],
+    "validation": {
+      "status": "failed",
+      "issues": ["ia.md 일부 섹션 누락", "handoff.md 컴포넌트 스펙 미정의"]
+    },
+    "createdAt": "2026-05-26T18:42:00+09:00"
+  },
+  {
+    "id": "run-003",
+    "prompt": "Vercel 배포 위한 CI/CD 셋업해줘",
+    "matchedHook": "cicd-setup-hook",
+    "selectedWorkUnit": "cicd-setup-workunit",
+    "selectedSkills": [
+      "simple-summary-skill",
+      "html-milestone-generator-skill",
+      "output-validation-skill"
+    ],
+    "status": "passed",
+    "outputs": ["cicd_plan.md", "deployment_checklist.md", "release_note.md", "milestone.html"],
+    "validation": { "status": "passed", "issues": [] },
+    "createdAt": "2026-05-26T11:10:00+09:00"
+  },
+  {
+    "id": "run-004",
+    "prompt": "kickoff 보고서 한번 더 돌려줘",
+    "matchedHook": "kickoff-report-hook",
+    "selectedWorkUnit": "kickoff-report-workunit",
+    "selectedSkills": [
+      "simple-summary-skill",
+      "stakeholder-map-skill",
+      "kickoff-report-template-skill",
+      "output-validation-skill"
+    ],
+    "status": "pending",
+    "outputs": [],
+    "validation": { "status": "pending", "issues": [] },
+    "createdAt": "2026-05-27T08:24:00+09:00"
+  }
+]
