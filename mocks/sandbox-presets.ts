@@ -1,145 +1,145 @@
 /**
- * MOCK: 샌드박스 프리셋.
+ * MOCK: 샌드박스 프리셋 — Phase 6 재정의 (AXDD 4-Case 시나리오).
  *
  * 사용자가 빈 화면 앞에서 막막하지 않도록 미리 준비된 시나리오를 카드로 제공.
  * 클릭 → 프롬프트 자동 입력 → 사용자가 [실행] 누르면 시각화 시작.
  *
- * 실제 운영 시 이 파일은 그대로 둬도 무방 — 프리셋 자체는 정적 콘텐츠.
- * 다만 production에서는 DB 또는 CMS에서 가져오는 게 자연스럽다.
- *
- * UX/UI 카테고리를 우선 강화 (recommended: true).
- * 다른 카테고리는 다른 작업자가 채울 예정.
+ * 외부 산업 도메인(헬스케어/핀테크/이커머스) 시나리오는 모두 제거.
+ * AXDD 전사 내부 작업 컨텍스트로 4-Case (A/B/C/D) 시나리오만 노출.
  */
 
-export type PresetCategory = "ux-ui" | "report" | "infra" | "edge-case";
-
-/**
- * Edge-case 시나리오 ─ 시스템 robustness 검증용.
- * 정보 부족 / 모호 / 무관 입력에 어떻게 반응하는지 시연한다.
- */
+export type PresetCategory = "ax-internal" | "ax-customer" | "ax-bootstrap" | "report" | "infra" | "edge-case";
 
 export interface SandboxPreset {
   id: string;
   category: PresetCategory;
   title: string;
-  /** 카드 본문 짧은 설명 */
+  /** 4-Case 매트릭스 식별 (UI 배지용) */
+  caseId?: "case-a" | "case-b" | "case-c" | "case-d";
   description: string;
-  /** 클릭 시 프롬프트 입력창에 들어갈 텍스트 */
   prompt: string;
-  /** 매칭되어야 하는 Work Unit (검증용) */
   expectedWorkUnit: string;
-  /** 카드 우상단 배지 텍스트 */
   badge: string;
-  /** 강조 표시 */
   recommended?: boolean;
-  /** 아이콘 이모지 (lucide 아이콘 사용하기 전 간단 처리) */
   emoji: string;
 }
 
 export const SANDBOX_PRESETS: SandboxPreset[] = [
-  // ─────────── UX/UI (강조 영역) ───────────
+  // ─────────── Case A · DS Bootstrap ───────────
   {
-    id: "saas-healthcare-dashboard",
-    category: "ux-ui",
-    title: "헬스케어 SaaS 환자 대시보드",
+    id: "axdd-ds-bootstrap",
+    category: "ax-bootstrap",
+    caseId: "case-a",
+    title: "AXDD DS 초안 부트스트랩",
     description:
-      "데스크탑 우선. 차분한 톤. UX 흐름 → IA → UI Foundation → 컴포넌트 스펙 → Figma 핸드오프까지.",
+      "AXDD 자체 디자인 시스템이 아직 없을 때, 요구사항만으로 토큰·공용 컴포넌트 초안 풀세트 생성.",
     prompt:
-      "신규 헬스케어 SaaS의 환자 대시보드를 기획해줘. 데스크탑 우선, 차분한 톤. UX 흐름과 IA, UI Foundation, 컴포넌트 스펙, Figma 핸드오프 문서까지 풀세트로 만들어줘.",
-    expectedWorkUnit: "ux-ui-planning-workunit",
-    badge: "UX/UI · Healthcare",
+      "AXDD 사내에서 쓸 디자인 시스템을 부트스트랩해줘. 사내 어드민·콘솔·내부 툴이 공통으로 쓸 수 있게 토큰(color/typography/spacing/radius/shadow/motion) 풀세트와 공용 컴포넌트 5종 스펙 초안을 만들어줘. 톤은 전문성·효율 중심.",
+    expectedWorkUnit: "design-system-bootstrap-workunit",
+    badge: "Case A · Bootstrap",
     recommended: true,
-    emoji: "🩺",
-  },
-  {
-    id: "ecommerce-mobile-redesign",
-    category: "ux-ui",
-    title: "패션 이커머스 모바일 리디자인",
-    description:
-      "MZ 타겟. 인스타그램 비주얼 톤. 사용자 플로우 + IA + 핸드오프 문서.",
-    prompt:
-      "기존 패션 이커머스 모바일 앱을 리디자인하려고 해. MZ 타겟이고 인스타그램 스러운 비주얼 톤을 가져가고 싶어. 사용자 플로우랑 IA 다시 잡고, 핸드오프 문서까지 만들어줘.",
-    expectedWorkUnit: "ux-ui-planning-workunit",
-    badge: "UX/UI · Commerce",
-    recommended: true,
-    emoji: "🛍️",
-  },
-  {
-    id: "fintech-onboarding-flow",
-    category: "ux-ui",
-    title: "핀테크 신규 사용자 온보딩",
-    description:
-      "KYC → 첫 송금 → 카드 발급. 디자인 파운데이션 + 핸드오프 풀세트.",
-    prompt:
-      "핀테크 신규 사용자 온보딩 화면을 만들어줘. KYC → 첫 송금 → 카드 발급까지의 사용자 플로우를 한번에 잡고, 디자인 파운데이션도 정의해줘. 핸드오프 문서까지 풀세트로.",
-    expectedWorkUnit: "ux-ui-planning-workunit",
-    badge: "UX/UI · Fintech",
-    recommended: true,
-    emoji: "💳",
-  },
-  {
-    id: "internal-tool-redesign",
-    category: "ux-ui",
-    title: "사내 어드민 리디자인",
-    description:
-      "엔터프라이즈 어드민 IA 재정리 + 디자인 시스템 토큰 정의 + 핸드오프.",
-    prompt:
-      "사내 어드민 툴을 리디자인하려고 해. 엔터프라이즈 톤, 데이터 테이블 위주. IA 재정리, 디자인 시스템 토큰 정의, 컴포넌트 스펙, 핸드오프 문서까지 만들어줘.",
-    expectedWorkUnit: "ux-ui-planning-workunit",
-    badge: "UX/UI · B2B",
-    emoji: "🗂️",
+    emoji: "🧱",
   },
 
-  // ─────────── Report (다른 작업자 영역) ───────────
+  // ─────────── Case B · AXDD 내부 신규 ───────────
   {
-    id: "saas-kickoff-report",
-    category: "report",
-    title: "신규 프로젝트 착수보고서",
+    id: "axdd-internal-admin-screen",
+    category: "ax-internal",
+    caseId: "case-b",
+    title: "사내 어드민 신규 화면 추가",
     description:
-      "B2B SaaS · 6주 일정 · 리스크 체크리스트 포함. (다른 작업자 강화 예정)",
+      "AXDD DS 차용. 사내 어드민에 새 화면(예: 데이터 테이블 + 필터 + 권한 매트릭스) 추가.",
     prompt:
-      "신규 B2B SaaS 프로젝트 착수보고서를 작성해줘. 6주 일정, 5명 팀, 리스크 체크리스트 포함.",
+      "AXDD 사내 어드민에 신규 화면 1세트를 추가하려고 해. AXDD DS를 그대로 차용하고, 데이터 테이블 + 필터 + 행별 액션이 포함된 운영자 워크플로우를 IA + 컴포넌트 스펙 + 핸드오프까지 풀세트로 만들어줘.",
+    expectedWorkUnit: "ux-ui-planning-workunit",
+    badge: "Case B · AXDD 내부",
+    recommended: true,
+    emoji: "🗂️",
+  },
+  {
+    id: "axdd-internal-skill-builder",
+    category: "ax-internal",
+    caseId: "case-b",
+    title: "사내 스킬 빌더 UI",
+    description:
+      "AXDD 콘솔에 새 'Skill Builder' 기능 추가. SKILL.md 작성 도우미 화면.",
+    prompt:
+      "AXDD SkillOps Console에 사내 디자이너·개발자가 직접 스킬을 만들 수 있는 'Skill Builder' 기능을 추가하려고 해. SKILL.md 작성 단계별 가이드 + 미리보기 + 즉시 등록까지의 UX 흐름과 IA, 컴포넌트 스펙을 만들어줘. AXDD DS 차용.",
+    expectedWorkUnit: "ux-ui-planning-workunit",
+    badge: "Case B · AXDD 내부",
+    emoji: "🧰",
+  },
+
+  // ─────────── Case C · 고객사 프로젝트 ───────────
+  {
+    id: "customer-project-handoff",
+    category: "ax-customer",
+    caseId: "case-c",
+    title: "고객사 프로젝트 핸드오프",
+    description:
+      "외부 고객사 프로젝트. 고객사 DS를 인풋으로 받아 AXDD 핸드오프 표준으로 산출.",
+    prompt:
+      "외부 고객사 프로젝트의 핸드오프 문서를 만들어줘. 고객사가 별도 디자인 시스템을 가지고 있어서 우리 AXDD DS는 폴백으로만 쓸 거야. 고객사 가이드 일치율을 자동 검수하고, IA + 컴포넌트 스펙 + 핸드오프 풀세트 작성.",
+    expectedWorkUnit: "ux-ui-planning-workunit",
+    badge: "Case C · 고객사",
+    recommended: true,
+    emoji: "🤝",
+  },
+
+  // ─────────── Case D · 요구사항만 ───────────
+  {
+    id: "requirement-only-extract",
+    category: "ax-internal",
+    caseId: "case-d",
+    title: "요구사항부터 정리 (Case D)",
+    description:
+      "고객/사업부가 넘긴 PRD에서 UI/UX 요구사항만 1페이지로 추출 (이후 Case A/B로 전이).",
+    prompt:
+      "사내 사업부가 넘긴 PRD 문서가 있는데 UI/UX 관련 요구사항만 1페이지로 정리해줘. 백엔드·API·인프라 요구사항은 제외. 정리되면 다음 단계(DS 부트스트랩 또는 AXDD DS 차용)로 어떻게 진행할지도 안내해줘.",
+    expectedWorkUnit: "ux-ui-planning-workunit",
+    badge: "Case D · 요구사항",
+    emoji: "📝",
+  },
+
+  // ─────────── Report ───────────
+  {
+    id: "axdd-kickoff-report",
+    category: "report",
+    title: "AXDD 신규 프로젝트 착수보고서",
+    description:
+      "사내 프로젝트 시작 시 이해관계자 · 일정 · 리스크 표준 정리.",
+    prompt:
+      "AXDD 사내에서 새로 시작하는 디자인 시스템 v2 프로젝트의 착수보고서를 작성해줘. 6주 일정, 디자이너 3명 + PM 1명 + 개발자 2명, 리스크 체크리스트 포함.",
     expectedWorkUnit: "kickoff-report-workunit",
     badge: "Report",
     emoji: "📋",
   },
 
-  // ─────────── Infra (다른 작업자 영역) ───────────
+  // ─────────── Infra ───────────
   {
-    id: "vercel-cicd-setup",
+    id: "axdd-cicd-setup",
     category: "infra",
-    title: "Vercel CI/CD 셋업",
+    title: "AXDD 콘솔 CI/CD 셋업",
     description:
-      "Next.js + GitHub Actions + 프리뷰 배포. (다른 작업자 강화 예정)",
+      "Next.js + GitHub Actions + Vercel 프리뷰 배포 + 릴리즈 노트 자동화.",
     prompt:
-      "Next.js 프로젝트의 Vercel 배포를 위한 CI/CD를 셋업해줘. GitHub Actions + 프리뷰 배포 + 릴리즈 노트 자동화까지.",
+      "AXDD SkillOps Console 프로젝트의 Vercel 배포를 위한 CI/CD를 셋업해줘. GitHub Actions + 프리뷰 배포 + 릴리즈 노트 자동화까지.",
     expectedWorkUnit: "cicd-setup-workunit",
     badge: "Infra",
     emoji: "🚀",
   },
 
-  // ─────────── Edge-case (Robustness 시연) ───────────
+  // ─────────── Edge-case ───────────
   {
     id: "diagnostic-vague",
     category: "edge-case",
     title: "모호한 입력",
     description:
-      "도메인·톤·범위 모두 누락. Clarifying Question이 발동되는지 시연.",
-    prompt: "디자인해줘",
+      "케이스·DS 상태 모두 누락. Clarifying Question이 발동되는지 시연.",
+    prompt: "스킬 하나 만들어줘",
     expectedWorkUnit: "ux-ui-planning-workunit",
     badge: "Edge · Vague",
     emoji: "❓",
-  },
-  {
-    id: "diagnostic-partial",
-    category: "edge-case",
-    title: "정보 일부 누락",
-    description:
-      "도메인만 있고 톤·페르소나·일정·디자인시스템 모두 누락. TBD 자동 표시 시연.",
-    prompt: "엔터프라이즈 어드민 만들어줘",
-    expectedWorkUnit: "ux-ui-planning-workunit",
-    badge: "Edge · Partial",
-    emoji: "🧩",
   },
   {
     id: "diagnostic-unmatched",
@@ -158,7 +158,9 @@ export const PRESET_CATEGORY_LABEL: Record<
   PresetCategory,
   { en: string; ko: string }
 > = {
-  "ux-ui": { en: "UX/UI", ko: "UX·UI 기획" },
+  "ax-bootstrap": { en: "Case A · Bootstrap", ko: "DS 부트스트랩" },
+  "ax-internal": { en: "Case B · Internal", ko: "AXDD 내부" },
+  "ax-customer": { en: "Case C · Customer", ko: "고객사 프로젝트" },
   report: { en: "Report", ko: "보고서" },
   infra: { en: "Infra", ko: "인프라" },
   "edge-case": { en: "Edge", ko: "엣지 케이스" },

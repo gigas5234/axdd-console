@@ -79,7 +79,7 @@ export function buildSimpleSummary(input: SkillRunInput): string {
     "## Next Steps",
     "1. 디자인 시스템 / 레퍼런스 수집 (없다면 도메인 표준 적용)",
     "2. UX 프로세스 플랜으로 단계화",
-    `3. **${domain === "unknown" ? "도메인 미지정 — generic 톤" : domain + " 도메인 특화"}** UI Foundation 정의`,
+    `3. **${domain === "unknown" ? "컨텍스트 미확정 — generic 톤" : domain + " 프로젝트 특화"}** UI Foundation 정의`,
     "4. 컴포넌트 스펙 + 샘플 화면 + Figma 프롬프트 순서로 진행",
     "5. validation skill로 도메인 fit 자동 검증",
   ].join("\n");

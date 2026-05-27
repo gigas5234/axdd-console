@@ -18,9 +18,10 @@ export const prompt: SkillPromptTemplate = {
 
 각 섹션은 3~5개 bullet로 정리하고, bullet은 한 줄 이내로 간결하게.
 
-**도메인 인지**:
-- 사용자 프롬프트에서 도메인(헬스케어/핀테크/이커머스/어드민 등)을 명시적으로 추출해 Context 섹션에 표시.
-- 명시 안 된 정보(일정·팀 규모·기존 시스템·페르소나 등)는 Risks에 "TBD" 항목으로 남길 것.
+**AXDD 컨텍스트 인지**:
+- 사용자 프롬프트에서 케이스(A·DS Bootstrap / B·AXDD 내부 / C·고객사 / D·요구사항만)를 추출해 Context 섹션에 표시.
+- 외부 산업(헬스케어/핀테크/이커머스 등) 어휘를 가져오지 말 것.
+- 명시 안 된 정보(일정·팀 규모·기존 DS·페르소나 등)는 Risks에 "TBD" 항목으로 남길 것.
 `,
   buildUser: (input) => {
     const raw = input.inputs?.["raw_document.md"] ?? input.prompt;

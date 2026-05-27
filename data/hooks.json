@@ -30,6 +30,25 @@
     "enabled": true
   },
   {
+    "id": "design-system-bootstrap-hook",
+    "name": "Design System Bootstrap Hook",
+    "description": "AXDD 자체 디자인 시스템이 아직 없을 때 부트스트랩 워크유닛을 트리거. 키워드 + 'AXDD DS 없음' 상태에서 활성.",
+    "conditions": {
+      "keywords": [
+        "디자인 시스템 만들기",
+        "디자인 시스템 부트스트랩",
+        "DS 부트스트랩",
+        "디자인 시스템 초기 세팅",
+        "design system bootstrap",
+        "토큰 초안",
+        "DS 초안"
+      ]
+    },
+    "targetWorkUnit": "design-system-bootstrap-workunit",
+    "priority": 1,
+    "enabled": true
+  },
+  {
     "id": "cicd-setup-hook",
     "name": "CI/CD Setup Hook",
     "description": "CI/CD 및 배포 환경 키워드 발생 시 CI/CD Setup Work Unit을 실행한다.",

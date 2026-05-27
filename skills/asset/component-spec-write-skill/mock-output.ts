@@ -1,5 +1,5 @@
 /**
- * MOCK: 공용 5종 + 도메인 특화 컴포넌트 풀 스펙.
+ * MOCK: 공용 5종 + 프로젝트 특화 컴포넌트 풀 스펙.
  * 각 컴포넌트마다 Variants/States/Props/Anatomy/Token mapping.
  */
 
@@ -12,7 +12,7 @@ export function buildComponentSpec(input: SkillRunInput): string {
 
   return `# Component Spec — ${profile.label}
 
-> 공용 컴포넌트 5종 + 도메인 특화 컴포넌트 ${profile.domainComponents.length}종.
+> 공용 컴포넌트 5종 + 프로젝트 특화 컴포넌트 ${profile.domainComponents.length}종.
 
 ## 공용 컴포넌트
 
@@ -50,7 +50,7 @@ export function buildComponentSpec(input: SkillRunInput): string {
 - **States**: enter / visible / leave
 - **Token mapping**: variant별 \`status/*\` 색
 
-## 도메인 특화 컴포넌트
+## 프로젝트 특화 컴포넌트
 
 ${profile.domainComponents
   .map(

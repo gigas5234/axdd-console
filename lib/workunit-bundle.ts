@@ -374,36 +374,36 @@ const EXAMPLE_DOMAINS: Array<{
   filename: string;
 }> = [
   {
-    domain: "헬스케어",
-    productType: "saas",
-    tone: "차분",
-    prompt:
-      "신규 헬스케어 SaaS의 환자 대시보드를 기획해줘. 데스크탑 우선, 차분한 톤. UX 흐름 + IA + UI Foundation + 컴포넌트 스펙 + Figma 핸드오프 풀세트.",
-    filename: "healthcare-example.md",
-  },
-  {
-    domain: "핀테크",
-    productType: "mobile-app",
+    domain: "ds-bootstrap",
+    productType: "design-system",
     tone: "전문성",
     prompt:
-      "핀테크 모바일 앱 — KYC + 첫 송금 + 자산 포트폴리오 화면을 기획해줘.",
-    filename: "fintech-example.md",
+      "Case A · AXDD 자체 디자인 시스템 부트스트랩 — 토큰·공용 컴포넌트 초안 풀세트 생성. 결과물은 data/our-design-system.md 후보.",
+    filename: "case-a-ds-bootstrap.md",
   },
   {
-    domain: "이커머스",
-    productType: "mobile-app",
-    tone: "MZ",
+    domain: "axdd-internal",
+    productType: "admin-tool",
+    tone: "효율",
     prompt:
-      "패션 이커머스 모바일 앱 리디자인. MZ 타겟, 인스타그램 비주얼. 큐레이션 + 상품 상세 + 결제까지.",
-    filename: "ecommerce-example.md",
+      "Case B · 사내 어드민 신규 화면 추가 — AXDD DS 토큰 차용 + IA + 컴포넌트 스펙 + 핸드오프 풀세트.",
+    filename: "case-b-axdd-internal.md",
   },
   {
-    domain: "어드민",
-    productType: "admin",
+    domain: "customer-project",
+    productType: "customer-deliverable",
     tone: "엔터프라이즈",
     prompt:
-      "사내 어드민 툴 리디자인. 엔터프라이즈 톤, 데이터 테이블 위주. IA + 디자인 시스템 + 컴포넌트 스펙.",
-    filename: "admin-example.md",
+      "Case C · 외부 고객사 프로젝트 수행 — 고객사 DS 차용 + AXDD 핸드오프 표준 유지.",
+    filename: "case-c-customer-project.md",
+  },
+  {
+    domain: "generic",
+    productType: "documentation",
+    tone: "미니멀",
+    prompt:
+      "Case D · 요구사항만 정리 — UI/UX 요구사항 1페이지 요약부터 시작 (이후 Case A/B로 전이).",
+    filename: "case-d-requirement-only.md",
   },
 ];
 
@@ -426,6 +426,7 @@ function buildExampleIntent(
       needsHandoff: true,
       needsKickoffReport: false,
       needsCICD: false,
+      needsDsBootstrap: domain === "ds-bootstrap",
     },
     unknowns: [],
     rawPrompt: prompt,

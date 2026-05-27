@@ -27,7 +27,7 @@ ${s.wireframe}
 
 **영역별 컴포넌트·토큰 매핑**:
 - 헤더 → \`Card\` (\`radius/lg\`, \`shadow/md\`)
-- 본문 영역 → 도메인 특화 컴포넌트 (${profile.domainComponents[i % profile.domainComponents.length]?.name})
+- 본문 영역 → 프로젝트 특화 컴포넌트 (${profile.domainComponents[i % profile.domainComponents.length]?.name})
 - 액션 영역 → \`Button\` (primary는 \`${primaryToken}\`)
 - 페이지 padding: \`spacing/3xl\` (32)
 `,

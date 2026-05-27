@@ -12,11 +12,11 @@ User Flow의 화면들을 받아 Information Architecture를 ASCII 트리로 구
 # 출력 구조
 \`\`\`
 /
-├── /<도메인-특화-경로> — 설명
-└── /<도메인-특화-경로>/<sub> — 설명
+├── /<프로젝트-특화-경로> — 설명
+└── /<프로젝트-특화-경로>/<sub> — 설명
 \`\`\`
 
-도메인 특화 경로 사용 (헬스케어: /appointments, /medications · 핀테크: /transfer, /portfolio).
+프로젝트 요구사항·페르소나 작업에서 도출된 경로를 사용 (사내 어드민: /projects, /skills, /governance 등 · DS 카탈로그: /design-system, /design-system/components 등).
 generic (/dashboard, /settings)만 있으면 안 됨.
 `,
   buildUser: (input) => {

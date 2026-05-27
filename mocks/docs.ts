@@ -111,17 +111,20 @@ Work Unit Flow의 각 노드에 **좌측 보더 색**으로 트랙 구분:
 
 상단에 \`TrackLegend\` 컴포넌트 — 4개 트랙 chip + 트랙별 done/total 카운트.
 
-## 5. Domain Profile (5종 + generic)
+## 5. AXDD 컨텍스트 프로필 (Phase 6 재정의)
 
-\`skills/_runtime/domain-profiles.ts\`에 5개 도메인 프로필 정의:
+> ⚠️ 이전 버전의 5개 외부 산업 도메인은 회의록 재분석으로 폐기됨. 현재는 AXDD 전사 내부 컨텍스트만.
 
-| 도메인 | 톤 | 페르소나 예 | 색 토큰 |
-|---|---|---|---|
-| 헬스케어 | 신뢰·차분 | 환자/보호자/의료진 | teal-600 + sky-500 |
-| 핀테크 | 전문성·정확 | 송금자/자산관리/KYC | navy-900 + gold-500 |
-| 이커머스 | 트렌디·활발 | MZ쇼퍼/비교형/셀러 | coral-500 + pink-500 |
-| 어드민 | 효율·차분 | 분석가/운영자/관리자 | blue-600 + slate-50 |
-| SaaS | 미니멀 | 팀리드/파워유저/신규 | indigo-500 + cyan-500 |
+\`skills/_runtime/domain-profiles.ts\`의 4개 AXDD 컨텍스트:
+
+| 컨텍스트 | Case | 톤 | 페르소나 예 |
+|---|:---:|---|---|
+| axdd-internal | B | 전문성·효율 | 사내 디자이너 / 프론트엔드 / PM / 운영자 |
+| customer-project | C | 적응적·고객사 톤 차용 | 고객사 의사결정자 / AXDD 프로젝트 리드 |
+| ds-bootstrap | A | 초안·체계적 | DS 설계자 / 컨트리뷰터 / Design Lead |
+| generic | — | 중립 | 사내 사용자 (clarifying 진행) |
+
+색 토큰은 \`data/our-design-system.md\`에서 가져옴 (현재는 \`__TODO__\` scaffold). 외부 산업 어휘(환자/송금자/MZ쇼퍼) 사용 금지.
 
 각 도메인 프로필은:
 - 색 토큰 12종

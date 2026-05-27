@@ -10,7 +10,7 @@ export function buildIa(input: SkillRunInput): string {
 
   return `# Information Architecture — ${profile.label}
 
-> 도메인 특화 라우트 트리 + 각 노드 한 줄 설명.
+> 프로젝트 특화 라우트 트리 + 각 노드 한 줄 설명.
 
 ## 라우트 트리
 
@@ -20,7 +20,7 @@ ${profile.iaTree}
 
 ## 화면 매핑
 - 모든 User Flow의 state가 위 트리에 매핑됨
-- 도메인 특화 경로 사용 (generic /dashboard 아님)
+- 프로젝트 특화 경로 사용 (generic /dashboard 아님)
 - orphan 노드 없음
 
 ---

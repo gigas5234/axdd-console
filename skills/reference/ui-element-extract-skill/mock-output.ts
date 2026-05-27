@@ -1,6 +1,6 @@
 /**
- * MOCK: 도메인 프로필 기반 UI 요소 추출.
- * 공용 컴포넌트 5종 + 도메인 특화 컴포넌트 (도메인 프로필에서 가져옴).
+ * MOCK: AXDD DS 또는 고객사 DS 레퍼런스 기반 UI 요소 추출.
+ * Phase 6 재정의: 4-Case 매트릭스 인지.
  */
 
 import type { SkillRunInput } from "../../_runtime/types";
@@ -8,10 +8,17 @@ import { getDomainProfile } from "../../_runtime/domain-profiles";
 
 export function buildUiElementExtract(input: SkillRunInput): string {
   const profile = getDomainProfile(input.context?.intent?.domain);
+  const dsSource =
+    profile.id === "customer-project"
+      ? "고객사 DS (1차) + AXDD DS 폴백"
+      : profile.id === "ds-bootstrap"
+        ? "(없음 — DS Bootstrap이 먼저 실행되어야 함)"
+        : "AXDD DS";
 
   return `# UI Element Extract — ${profile.label}
 
-> 디자인 시스템 레퍼런스를 분석해 본 프로젝트에 필요한 UI 요소 후보를 추출.
+> DS 출처: **${dsSource}**
+> 본 프로젝트에 필요한 UI 요소(컴포넌트 후보)를 디자인 시스템 레퍼런스에서 추출.
 
 ## 1. 공용 컴포넌트 (5종)
 
@@ -23,7 +30,7 @@ export function buildUiElementExtract(input: SkillRunInput): string {
 | Modal | 확인·경고 dialog + 슬라이드 패널 | 위험 액션·상세 보기 |
 | Toast | 일시 알림 (success/warning/error/info) | 액션 피드백 |
 
-## 2. 도메인 특화 컴포넌트 (${profile.domainComponents.length}종)
+## 2. 프로젝트 특화 컴포넌트 (${profile.domainComponents.length}종)
 
 ${profile.domainComponents
   .map(
@@ -39,7 +46,7 @@ ${profile.domainComponents
 ${profile.domainComponents
   .map(
     (c, i) =>
-      `- **${c.name}** ← 요구사항: ${profile.personas[i % profile.personas.length]?.goal ?? "도메인 핵심 작업"}`,
+      `- **${c.name}** ← 요구사항: ${profile.personas[i % profile.personas.length]?.goal ?? "프로젝트 핵심 작업"}`,
   )
   .join("\n")}
 

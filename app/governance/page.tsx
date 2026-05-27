@@ -202,11 +202,11 @@ export default function GovernancePage() {
           <CardHeader className="flex items-start justify-between flex-row gap-3 flex-wrap">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-accent-indigo" /> Domain Fit
-                Distribution
+                <Target className="h-4 w-4 text-accent-indigo" /> AXDD Context
+                Fit Distribution
               </CardTitle>
               <p className="text-xs text-ink-500 mt-1">
-                최근 실행의 도메인 보존 결과 — 사용자 요청 도메인이 산출물에 일관 유지됐는지 의미 검증
+                최근 실행의 AXDD 컨텍스트 보존 결과 — 4-Case(A/B/C/D) 컨텍스트가 산출물에 일관 유지됐는지 의미 검증
               </p>
             </div>
             <Badge tone="bg-white text-ink-600 border-ink-200">
@@ -222,7 +222,7 @@ export default function GovernancePage() {
                       Run
                     </th>
                     <th className="text-left font-semibold text-ink-700 px-3 py-2">
-                      Domain
+                      Context
                     </th>
                     <th className="text-left font-semibold text-ink-700 px-3 py-2">
                       Prompt

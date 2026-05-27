@@ -12,7 +12,9 @@ import {
 } from "@/mocks/sandbox-presets";
 
 const CATEGORY_TONE: Record<PresetCategory, string> = {
-  "ux-ui": "bg-indigo-50 text-indigo-700 border-indigo-200",
+  "ax-bootstrap": "bg-amber-50 text-amber-700 border-amber-200",
+  "ax-internal": "bg-sky-50 text-sky-700 border-sky-200",
+  "ax-customer": "bg-violet-50 text-violet-700 border-violet-200",
   report: "bg-slate-100 text-slate-700 border-slate-200",
   infra: "bg-emerald-50 text-emerald-700 border-emerald-200",
   "edge-case": "bg-rose-50 text-rose-700 border-rose-200",
@@ -20,7 +22,15 @@ const CATEGORY_TONE: Record<PresetCategory, string> = {
 
 type Filter = "all" | PresetCategory;
 
-const FILTER_ORDER: Filter[] = ["all", "ux-ui", "report", "infra", "edge-case"];
+const FILTER_ORDER: Filter[] = [
+  "all",
+  "ax-bootstrap",
+  "ax-internal",
+  "ax-customer",
+  "report",
+  "infra",
+  "edge-case",
+];
 
 export function PresetGallery({
   onSelect,
@@ -38,7 +48,12 @@ export function PresetGallery({
 
   const counts: Record<Filter, number> = {
     all: SANDBOX_PRESETS.length,
-    "ux-ui": SANDBOX_PRESETS.filter((p) => p.category === "ux-ui").length,
+    "ax-bootstrap": SANDBOX_PRESETS.filter((p) => p.category === "ax-bootstrap")
+      .length,
+    "ax-internal": SANDBOX_PRESETS.filter((p) => p.category === "ax-internal")
+      .length,
+    "ax-customer": SANDBOX_PRESETS.filter((p) => p.category === "ax-customer")
+      .length,
     report: SANDBOX_PRESETS.filter((p) => p.category === "report").length,
     infra: SANDBOX_PRESETS.filter((p) => p.category === "infra").length,
     "edge-case": SANDBOX_PRESETS.filter((p) => p.category === "edge-case")

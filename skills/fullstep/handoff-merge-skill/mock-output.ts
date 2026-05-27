@@ -57,7 +57,7 @@ ${profile.typographyPersonality}
 ${profile.motionGuide}
 
 ## 5. Component Spec
-공용 5종 (Button/Card/Input/Modal/Toast) + 도메인 특화 ${profile.domainComponents.length}종.
+공용 5종 (Button/Card/Input/Modal/Toast) + 프로젝트 특화 ${profile.domainComponents.length}종.
 
 ${profile.domainComponents
   .map((c) => `- **${c.name}** — ${c.purpose}`)
@@ -89,7 +89,7 @@ ${profile.interactions
 
 ## 8. A11y · QA Matrix
 
-### Accessibility (WCAG 2.1 AA + ${profile.id} 도메인 특화)
+### Accessibility (WCAG 2.1 AA + ${profile.id} 프로젝트 특화)
 ${profile.a11yChecklist.map((c) => `- [x] ${c}`).join("\n")}
 
 ### QA Matrix
@@ -105,6 +105,6 @@ Breakpoints: sm 640 / md 768 / lg 1024 / xl 1280
 ---
 
 다음 단계: \`figma-prompt-build\` 스킬이 이 핸드오프를 Figma AI 프롬프트로 변환한다.
-도메인 키워드 ${profile.domainKeywords.length}종 자동 반영.
+컨텍스트 키워드 ${profile.domainKeywords.length}종 자동 반영.
 `;
 }

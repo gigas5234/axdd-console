@@ -1394,6 +1394,109 @@ extractIntent(prompt)   ← LLM (Anthropic) 또는 휴리스틱 fallback
 각 단계는 독립적으로 도입 가능. 한 번에 다 안 해도 됨.
 
 # ─────────────────────────────────────────────────────────
+# §30+ Phase 6: AXDD 전사 내부 컨텍스트 재정의 (회의록 재분석)
+# 이전 §1~29는 외부 산업(헬스케어/핀테크/이커머스) 도메인 가정으로 작성됐다.
+# Phase 6는 회의록 재분석으로 컨텍스트를 AXDD 전사 내부로 전면 재정의한다.
+# ─────────────────────────────────────────────────────────
+
+## 30. AXDD 전사 내부 컨텍스트 (회의록 정정)
+
+### 30.1 잘못 잡았던 가정과 정정
+
+이전 Phase 1~5의 코드는 다음과 같이 가정했다 — **잘못된 가정**이다:
+- 5개 외부 산업 도메인 (헬스케어/핀테크/이커머스/어드민/SaaS) 산출물 생성
+- "도메인 보존" = 외부 산업 컨텍스트 유지
+
+회의록 재분석으로 드러난 **실제 컨텍스트**:
+- 이 콘솔의 사용자: **AXDD 전사 내부 디자이너/PM/개발자**
+- 이 콘솔의 목적: **스킬을 만들기 위한 스켈레톤/가이드 카탈로그** (가람씨: "스켈레톤 껍데기")
+- 산출물의 디자인 시스템: **AXDD 자체 DS** (가람씨: "우리 디자인 시스템")
+- 인풋은 모두 **조건부** — "if 문 들어가야 됨"
+- 가상 외부 산업 페르소나(환자/송금자/MZ쇼퍼)는 **사용 금지**
+
+### 30.2 4-Case 매트릭스
+
+| Case | 조건 | 워크유닛 |
+|---|---|---|
+| **A · DS Bootstrap** | AXDD DS 미정의 + 요구사항 있음 | `design-system-bootstrap-workunit` |
+| **B · AXDD 내부 신규** | AXDD DS 있음 + 요구사항 있음 (사내 자체 프로젝트) | `ux-ui-planning-workunit` |
+| **C · 고객사 프로젝트** | 고객사 DS 인풋 있음 (AXDD DS 폴백) | `ux-ui-planning-workunit` |
+| **D · 요구사항만** | 요구사항만 있음 (DS 미확정) | `ux-ui-planning-workunit` → A/B로 전이 |
+
+### 30.3 인풋 슬롯 모델
+
+`lib/types.ts`의 `SkillInputSlot` / `SkillBranch` 인터페이스:
+
+- 각 스킬은 명시적 인풋 슬롯 목록을 가진다 (이름·형식·필수·소스)
+- 소스 타입: `user-input` / `previous-skill` / `fixed-asset` / `axdd-ds-catalog` / `customer-ds-input`
+- 인풋이 없을 때 fallback (다른 슬롯 이름 또는 "skip")
+- `runWhen`으로 스킬 실행 조건 명시 (예: `{ hasAxddDs: false }` → DS Bootstrap에서만 실행)
+
+### 30.4 도메인 프로필 → 프로젝트 컨텍스트 프로필
+
+`skills/_runtime/domain-profiles.ts` 전면 교체:
+- 헬스케어/핀테크/이커머스/어드민/SaaS 5개 → AXDD-internal / customer-project / ds-bootstrap / generic 4개
+- 페르소나는 사내 디자이너/프론트엔드/PM/운영자 + DS 컨트리뷰터 + 고객사 의사결정자
+- 색 토큰은 `__TODO__` 마커 — 실제 값은 `data/our-design-system.md`에서 채움
+- 컴포넌트는 AXDD 콘솔 자체에 필요한 것 (ProjectSummaryCard, TokenSwatch, ReviewQueueRow, SkillChainNode 등)
+
+### 30.5 AXDD DS 카탈로그 (`data/our-design-system.md`)
+
+- 모든 UX/UI 스킬의 **고정 자산** — 스킬 실행 시 인풋으로 전달
+- 현재는 **scaffold 상태** (TODO 마커 다수)
+- 채우는 3가지 방법:
+  1. 디자인팀이 직접 편집
+  2. 콘솔의 `/assets` 페이지에서 업로드 (AxddDsCard)
+  3. `design-system-bootstrap-workunit` 실행 → 산출물을 이 파일로 덮어쓰기
+- 상태 조회: `GET /api/design-system/status` → `scaffold` | `partial` | `ready`
+
+### 30.6 시스템 룰 갱신
+
+`DOMAIN_PRESERVATION_RULE` → **AXDD 컨텍스트 보존 규칙**:
+- 외부 산업 키워드 (환자/송금자/MZ쇼퍼/헬스케어/핀테크/이커머스) 사용 금지
+- 모든 페르소나는 AXDD 내부 사용자
+- DS 출처(AXDD DS / 고객사 DS / 신규 부트스트랩) 산출물 상단 명시
+- 케이스(A/B/C/D) 산출물 상단 명시
+
+### 30.7 검증 재설계
+
+`mocks/validation.ts`:
+- 도메인 키워드 누출 검사 → AXDD 컨텍스트 키워드 일치 + **외부 산업 단어 누출 0 검사**
+- 외부 산업 forbidden 패턴: `환자`, `송금자|KYC`, `MZ쇼퍼|패션 이커머스`, `헬스케어|핀테크|이커머스`
+- 검사 통과 = AXDD 키워드 ≥ 5회 + 외부 산업 누출 0회
+
+### 30.8 새 워크유닛: `design-system-bootstrap-workunit`
+
+Case A 전용:
+- 스킬: `ui-ux-requirement-extract` → `ui-foundation-build` → `component-spec-write`
+- `runWhen: { hasAxddDs: false }` — AXDD DS가 없을 때만 활성
+- `humanGate: true` — 각 단계 승인 필요
+- 산출물은 `data/our-design-system.md` 후보로 마킹
+
+Hook: `design-system-bootstrap-hook` (키워드: "디자인 시스템 만들기" / "DS 부트스트랩" / "DS 초안" 등)
+
+### 30.9 UI 갱신
+
+- **Asset Repository**: AXDD DS 상태 카드 추가 (scaffold/partial/ready 표시 + 4-Case 가능 여부)
+- **Sandbox preset**: 외부 산업 9종 → AXDD 4-Case 시나리오 9종
+- **Governance**: Domain Fit → "AXDD Context Fit Distribution"
+- **Clarifying 질문**: "어떤 도메인?" → "어떤 케이스? (A/B/C/D)"
+
+### 30.10 회의록 핵심 인용
+
+> "이 디자인 시스템 기반이 레퍼런스가 들어올게 우리 쪽 디자인 시스템일 수도 있고, 고객사 디자인 시스템일 수도 있고"
+
+> "디자인 시스템 인풋은 고정값"
+
+> "지금 가람님은 MD 안에 어떤 내용이 들어가야 될 지는 상상을 하고 계시잖아요. 그 내용이 폴더 자체로 가지고 있어도 돼요"
+
+> "if가 들어가는 거에요. 얘가 없어서 얘가 했으면 얘를 탈 거지만 앞에 뭔가 있어서 얘를 스킵했어 그러면 얘꺼를 그냥 타면 되고"
+
+→ Phase 6 모든 변경의 근거.
+
+---
+
+# ─────────────────────────────────────────────────────────
 # §29+ Phase 5: Atomic Skill 재구성 (회의 피드백 반영)
 # 이 섹션은 가람씨 미팅 피드백 이후 추가된 구조를 반영한다.
 # 이전 §1~28은 atomic 재구성 이전의 5-skill 풀스텝 구조를 설명한다.

@@ -22,14 +22,13 @@ export interface ClarifyingQuestion {
 const CATALOG: Record<UnknownField, ClarifyingQuestion> = {
   domain: {
     field: "domain",
-    question: "어떤 도메인의 제품인가요?",
+    question: "어떤 컨텍스트의 작업인가요? (AXDD 4-Case)",
     priority: 1,
     options: [
-      { value: "헬스케어 SaaS", label: "헬스케어" },
-      { value: "이커머스", label: "이커머스" },
-      { value: "핀테크", label: "핀테크" },
-      { value: "엔터프라이즈 어드민", label: "어드민/B2B" },
-      { value: "교육 LMS", label: "교육" },
+      { value: "AXDD 사내 자체 자산 만들기 (Case B)", label: "AXDD 내부" },
+      { value: "외부 고객사 프로젝트 (Case C)", label: "고객사" },
+      { value: "AXDD 자체 디자인 시스템 초안 만들기 (Case A)", label: "DS Bootstrap" },
+      { value: "요구사항부터 정리 (Case D)", label: "요구사항만" },
     ],
   },
   tone: {
@@ -38,7 +37,7 @@ const CATALOG: Record<UnknownField, ClarifyingQuestion> = {
     priority: 2,
     options: [
       { value: "엔터프라이즈, 차분", label: "엔터프라이즈" },
-      { value: "MZ타겟, 인스타그램스러운", label: "MZ" },
+      { value: "효율·운영 (어드민·내부 툴)", label: "효율" },
       { value: "미니멀, 깔끔", label: "미니멀" },
       { value: "전문성·신뢰", label: "전문성" },
     ],
@@ -48,7 +47,7 @@ const CATALOG: Record<UnknownField, ClarifyingQuestion> = {
     question: "어떤 플랫폼 우선인가요?",
     priority: 3,
     options: [
-      { value: "데스크탑 우선", label: "데스크탑" },
+      { value: "데스크탑 우선 (사내 어드민·툴)", label: "데스크탑" },
       { value: "모바일 우선", label: "모바일" },
       { value: "데스크탑·모바일 모두", label: "반응형 둘 다" },
     ],
@@ -58,19 +57,19 @@ const CATALOG: Record<UnknownField, ClarifyingQuestion> = {
     question: "주요 타겟 사용자는?",
     priority: 4,
     options: [
-      { value: "20-30대 일반 사용자", label: "MZ 일반" },
-      { value: "40대 이상 전문가/관리자", label: "시니어 전문가" },
-      { value: "다양한 연령대", label: "범용" },
+      { value: "사내 디자이너·프론트엔드·PM", label: "사내 팀" },
+      { value: "DS 컨트리뷰터·Design Lead", label: "DS 팀" },
+      { value: "고객사 의사결정자·AXDD 프로젝트 리드", label: "고객사 프로젝트" },
     ],
   },
   "existing-design-system": {
     field: "existing-design-system",
-    question: "기존 디자인 시스템이 있나요?",
+    question: "AXDD 디자인 시스템 상태는?",
     priority: 5,
     options: [
-      { value: "기존 디자인 시스템 있음 (확장)", label: "있음" },
-      { value: "처음부터 새로 정의", label: "없음" },
-      { value: "기존 시스템 있지만 리뉴얼", label: "리뉴얼 중" },
+      { value: "AXDD DS 있음 (확장·차용)", label: "있음" },
+      { value: "AXDD DS 없음 — 새로 정의 (Bootstrap)", label: "없음" },
+      { value: "고객사 DS 입력 예정 — AXDD DS는 폴백", label: "고객사 DS 우선" },
     ],
   },
   timeline: {
@@ -101,7 +100,8 @@ const CATALOG: Record<UnknownField, ClarifyingQuestion> = {
     options: [
       { value: "UX 흐름 + IA만", label: "기획만" },
       { value: "디자인 파운데이션 + 컴포넌트", label: "디자인 시스템" },
-      { value: "Figma 핸드오프 풀세트", label: "풀세트" },
+      { value: "Figma 핸드오프 풀세트 (UI + UX 트랙 모두)", label: "풀세트" },
+      { value: "AXDD DS 부트스트랩 (Case A)", label: "DS Bootstrap" },
     ],
   },
 };

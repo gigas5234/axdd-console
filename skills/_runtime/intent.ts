@@ -2,38 +2,35 @@
  * Intent Extraction — 자연어 프롬프트를 구조화된 의도 객체로 분해.
  *
  * ╔════════════════════════════════════════════════════════════════════╗
- * ║  설계 원칙                                                          ║
+ * ║  Phase 6 재정의                                                      ║
  * ║  ────────────────                                                  ║
- * ║  · 의도 "파악" 자체는 자연어 이해라 LLM이 유리하지만,               ║
- * ║    LLM 키 없을 때를 위해 휴리스틱 fallback 제공.                    ║
- * ║  · 의도가 파악된 후 "사용자에게 무엇을 추가로 물을지"는              ║
- * ║    clarifying.ts의 정적 카탈로그가 담당 (LLM 호출 없음).            ║
- * ║                                                                    ║
- * ║  교체 가이드                                                       ║
- * ║  ──────                                                            ║
- * ║  ANTHROPIC_API_KEY 도입 시 extractIntent() 안에서                  ║
- * ║  isLlmAvailable() 분기 → callLlm으로 구조화 JSON 응답 받기.         ║
- * ║  현재는 휴리스틱(키워드 기반)만 동작.                               ║
+ * ║  이 콘솔은 외부 산업(헬스케어/핀테크/이커머스) 프로젝트가 아니라      ║
+ * ║  AXDD 전사 내부에서 쓰는 스킬을 만드는 도구다.                      ║
+ * ║  → "domain" 필드 의미를 외부 산업 → 프로젝트 컨텍스트로 재정의.      ║
  * ╚════════════════════════════════════════════════════════════════════╝
  */
 
+/**
+ * 프로젝트 컨텍스트 — 이 콘솔이 다루는 4가지 시나리오.
+ *
+ * - axdd-internal: AXDD 내부 자체 자산을 만드는 작업 (Case B)
+ * - customer-project: 외부 고객사 프로젝트 수행 (Case C)
+ * - ds-bootstrap: 자체 DS가 아직 없어 부트스트랩 (Case A)
+ * - generic: 컨텍스트 미확정 — clarifying 질문 필요
+ */
 export type Domain =
-  | "헬스케어"
-  | "핀테크"
-  | "이커머스"
-  | "어드민"
-  | "saas"
-  | "교육"
-  | "엔터테인먼트"
+  | "axdd-internal"
+  | "customer-project"
+  | "ds-bootstrap"
+  | "generic"
   | "unknown";
 
 export type Tone =
-  | "엔터프라이즈"
-  | "MZ"
-  | "미니멀"
-  | "차분"
-  | "활발"
-  | "전문성"
+  | "전문성" /* 사내 운영 - 신뢰·정확 */
+  | "엔터프라이즈" /* 사내 표준·일관성 */
+  | "효율" /* 어드민·내부 툴 */
+  | "차분" /* 신뢰가 중요한 문서 작업 */
+  | "미니멀" /* 핵심만 보이는 인터페이스 */
   | "unknown";
 
 export type UnknownField =
@@ -55,70 +52,83 @@ export interface IntentScope {
   needsHandoff: boolean;
   needsKickoffReport: boolean;
   needsCICD: boolean;
+  /** Phase 6 신규 — DS Bootstrap 워크유닛 후보 신호 */
+  needsDsBootstrap: boolean;
 }
 
 /**
- * Product Type — 제품 유형 (도메인과 다름).
+ * Product Type — 제품 유형.
  *
- * SaaS / Mobile App / Web 같은 분류는 **제품 유형**이지 비즈니스 도메인이 아니다.
- * "헬스케어 SaaS"는 domain=헬스케어 + productType=saas로 분해된다.
- * 이렇게 분리해야 SaaS 키워드가 "도메인 누출"로 잘못 잡히지 않는다.
+ * AXDD 컨텍스트에서는 다음이 주로 쓰임:
+ *   - admin-tool: 사내 어드민
+ *   - internal-saas: 사내 SaaS (협업/관리 도구)
+ *   - design-system: 디자인 시스템 자체
+ *   - customer-deliverable: 외부 고객 산출물
+ *   - documentation: 사내 문서/가이드
  */
 export type ProductType =
-  | "saas"
-  | "mobile-app"
-  | "web"
-  | "desktop"
-  | "admin"
+  | "admin-tool"
+  | "internal-saas"
+  | "design-system"
+  | "customer-deliverable"
+  | "documentation"
   | "unknown";
 
 export interface RunIntent {
+  /** 프로젝트 컨텍스트 (외부 산업 도메인 X, AXDD 시나리오) */
   domain: Domain;
-  /** 제품 유형 — 도메인과 별개. SaaS / Mobile / Web 등 */
+  /** 제품 유형 */
   productType: ProductType;
+  /** 톤앤매너 */
   tone: Tone;
   scope: IntentScope;
   unknowns: UnknownField[];
   rawPrompt: string;
-  /** 추출 신뢰도 0~1 — UI에서 clarifying 카드 표시 여부 결정 */
   confidence: number;
-  /** "엔터프라이즈 어드민" 같은 도메인 키워드 원본 */
   detectedKeywords: string[];
-  /** intent 추출에 사용된 모드 (LLM vs 휴리스틱) */
   mode: "llm" | "heuristic";
 }
 
-// ─── 도메인 / 톤 휴리스틱 매칭 사전 ─────────────────────────────────────
+// ─── 컨텍스트 매칭 사전 (Phase 6 재정의) ────────────────────────────────
 
 const DOMAIN_PATTERNS: { domain: Domain; patterns: RegExp[] }[] = [
-  { domain: "헬스케어", patterns: [/헬스케어/, /환자/, /병원/, /의료/, /원무/] },
   {
-    domain: "핀테크",
-    patterns: [/핀테크/, /송금/, /결제/, /kyc/i, /카드/, /금융/, /적금|예금/],
+    // DS Bootstrap 신호 — 디자인 시스템 자체를 만드는 작업
+    domain: "ds-bootstrap",
+    patterns: [
+      /디자인 *시스템 *(만들|부트스트랩|초안|초기)/,
+      /design *system *bootstrap/i,
+      /토큰 *초안|ds *초안/i,
+      /(우리|자체|axdd) *(디자인|ds) *(없|새로 만)/,
+    ],
   },
   {
-    domain: "이커머스",
-    patterns: [/이커머스/, /쇼핑/, /패션/, /커머스/, /상품/, /장바구니/],
+    domain: "customer-project",
+    patterns: [
+      /고객사|클라이언트 *프로젝트|외주|고객 *프로젝트/,
+      /customer *project|client *project/i,
+      /고객 *(?:디자인|ds)/,
+    ],
   },
   {
-    domain: "어드민",
-    patterns: [/어드민/, /관리자/, /admin/i, /백오피스/, /b2b/i, /사내 *툴/],
+    domain: "axdd-internal",
+    patterns: [
+      /axdd|사내|내부|전사|우리 *(?:팀|회사)/i,
+      /사내 *(?:어드민|툴|대시보드|시스템)/,
+      /internal *(?:tool|admin|dashboard)/i,
+    ],
   },
-  { domain: "saas", patterns: [/saas/i, /구독/, /b2b *서비스/] },
-  { domain: "교육", patterns: [/교육/, /학습/, /lms/i, /강의/, /수강/] },
-  { domain: "엔터테인먼트", patterns: [/엔터/, /미디어/, /콘텐츠/, /streaming/i] },
 ];
 
 const TONE_PATTERNS: { tone: Tone; patterns: RegExp[] }[] = [
   {
     tone: "엔터프라이즈",
-    patterns: [/엔터프라이즈/, /enterprise/i, /업무용/, /효율/, /데이터.*테이블/],
+    patterns: [/엔터프라이즈|enterprise/i, /사내 *표준|일관성/],
   },
-  { tone: "MZ", patterns: [/mz/i, /인스타그램/, /인스타/, /젊은/, /트렌디/] },
-  { tone: "미니멀", patterns: [/미니멀/, /minimal/i, /깔끔/, /심플/] },
-  { tone: "차분", patterns: [/차분/, /절제/, /고요/, /진지/] },
-  { tone: "활발", patterns: [/활발/, /동적/, /역동적/, /신나는/] },
-  { tone: "전문성", patterns: [/전문/, /신뢰/, /보수적/] },
+  { tone: "효율", patterns: [/효율|어드민|admin|운영|관리/i] },
+  { tone: "전문성", patterns: [/전문|신뢰|보수적|정확/] },
+  { tone: "차분", patterns: [/차분|절제|진지/] },
+  { tone: "미니멀", patterns: [/미니멀|minimal|깔끔|심플/i] },
 ];
 
 const SCOPE_PATTERNS: {
@@ -166,55 +176,46 @@ const SCOPE_PATTERNS: {
     key: "needsCICD",
     patterns: [/ci\/cd/i, /cicd/i, /배포/, /vercel/i, /github actions/i, /릴리즈/],
   },
+  {
+    key: "needsDsBootstrap",
+    patterns: [
+      /디자인 *시스템 *(만들|부트스트랩|초안|초기 *세팅)/,
+      /토큰 *초안|ds *초안/i,
+    ],
+  },
 ];
 
 // ─── 휴리스틱 추출 함수 ────────────────────────────────────────────────
 
-/**
- * Product type 검출 — 도메인 검출과 독립적.
- * "헬스케어 SaaS"는 domain=헬스케어 + productType=saas로 분해된다.
- */
 function detectProductType(p: string): ProductType {
-  if (/saas/i.test(p)) return "saas";
-  if (/(모바일 *앱|mobile *app|ios|android)/i.test(p)) return "mobile-app";
-  if (/(데스크탑|desktop|electron)/i.test(p)) return "desktop";
-  if (/(어드민|admin|백오피스|관리자 *콘솔)/i.test(p)) return "admin";
-  if (/(웹 *서비스|web *app|웹사이트|website)/i.test(p)) return "web";
+  if (/(어드민|admin|백오피스|운영 *툴|관리자 *콘솔)/i.test(p))
+    return "admin-tool";
+  if (/(디자인 *시스템|design *system|ds *카탈로그|토큰 *초안)/i.test(p))
+    return "design-system";
+  if (/(고객사|고객 *프로젝트|customer|deliverable)/i.test(p))
+    return "customer-deliverable";
+  if (/(사내 *saas|internal *saas|협업 *도구|콘솔)/i.test(p))
+    return "internal-saas";
+  if (/(문서|문서화|가이드|매뉴얼|docs)/i.test(p)) return "documentation";
   return "unknown";
 }
 
 /**
- * 도메인 검출 — **score 기반**.
- *
- * 이전 버전은 DOMAIN_PATTERNS 순서대로 첫 번째 매칭을 반환했으나,
- * "패션 이커머스 + 결제" 같은 프롬프트에서 결제(핀테크) 패턴이 먼저
- * 매칭돼 이커머스가 핀테크로 오분류되는 문제가 있었다.
- *
- * 새 로직:
- *   1. 모든 도메인의 모든 패턴 매칭 횟수 카운트
- *   2. 최고 점수 도메인 반환
- *   3. 동점이면 명시적 도메인 키워드(헬스케어/핀테크/이커머스/어드민/saas) 우선
+ * 도메인 검출 — score-based + 명시적 키워드 우선.
  */
 function detectDomain(p: string): { domain: Domain; matched: string | null } {
-  // 명시적 도메인 키워드 — 동점 시 우선
-  const EXPLICIT_DOMAIN: Record<string, Domain> = {
-    헬스케어: "헬스케어",
-    핀테크: "핀테크",
-    이커머스: "이커머스",
-    커머스: "이커머스",
-    어드민: "어드민",
-    admin: "어드민",
-    saas: "saas",
-    교육: "교육",
-    엔터: "엔터테인먼트",
-  };
-  for (const [kw, dom] of Object.entries(EXPLICIT_DOMAIN)) {
-    if (new RegExp(kw, "i").test(p)) {
-      return { domain: dom, matched: kw };
-    }
+  // 1) 명시적 키워드 우선
+  const EXPLICIT: { kw: RegExp; dom: Domain }[] = [
+    { kw: /디자인 *시스템 *(부트스트랩|초안|초기|만들)/, dom: "ds-bootstrap" },
+    { kw: /고객사|client *project/i, dom: "customer-project" },
+    { kw: /axdd|사내|전사 *내부/i, dom: "axdd-internal" },
+  ];
+  for (const { kw, dom } of EXPLICIT) {
+    const m = p.match(kw);
+    if (m) return { domain: dom, matched: m[0] };
   }
 
-  // 명시적 키워드가 없을 때만 score-based 검출
+  // 2) score-based
   let bestDomain: Domain = "unknown";
   let bestScore = 0;
   let bestMatched: string | null = null;
@@ -255,6 +256,7 @@ function detectScope(p: string): IntentScope {
     needsHandoff: false,
     needsKickoffReport: false,
     needsCICD: false,
+    needsDsBootstrap: false,
   };
   for (const { key, patterns } of SCOPE_PATTERNS) {
     if (patterns.some((re) => re.test(p))) scope[key] = true;
@@ -269,24 +271,19 @@ function detectUnknowns(
   scope: IntentScope,
 ): UnknownField[] {
   const unknowns: UnknownField[] = [];
-  if (domain === "unknown") unknowns.push("domain");
+  if (domain === "unknown" || domain === "generic") unknowns.push("domain");
   if (tone === "unknown") unknowns.push("tone");
-  // 기간/팀 규모 명시 여부
   if (!/\d+ *(주|일|개월|month|week)/i.test(prompt)) unknowns.push("timeline");
   if (!/\d+ *(명|인|person|people)/i.test(prompt)) unknowns.push("team-size");
-  // 기존 디자인 시스템 여부 — "있다/없다" 명시 안 됐고 스코프에 포함된 경우만 unknown으로
-  if (scope.needsDesignSystem && !/(기존|있|새로운|새|레퍼런스)/.test(prompt)) {
+  if (scope.needsDesignSystem && !/(있|기존|새로 *만)/.test(prompt)) {
     unknowns.push("existing-design-system");
   }
-  // 페르소나 명시
-  if (!/(타겟|페르소나|persona|사용자.*세대|mz|시니어)/i.test(prompt)) {
+  if (!/(타겟|페르소나|persona|사용자|디자이너|pm|개발자|운영자|기획자)/i.test(prompt)) {
     unknowns.push("target-persona");
   }
-  // 플랫폼
-  if (!/(웹|web|모바일|mobile|앱|ios|android|데스크탑|desktop)/i.test(prompt)) {
+  if (!/(웹|web|모바일|mobile|앱|admin|어드민|데스크탑|desktop)/i.test(prompt)) {
     unknowns.push("platform");
   }
-  // 스코프 자체가 너무 일반적이면
   const scopeCount = Object.values(scope).filter(Boolean).length;
   if (scopeCount <= 1) unknowns.push("scope-specifics");
   return unknowns;
@@ -300,7 +297,6 @@ function computeConfidence(
   unknowns: UnknownField[],
 ): number {
   const wordCount = prompt.trim().split(/\s+/).length;
-  // base: 단어 수 기반 0.3~0.85
   let score = Math.min(0.85, 0.3 + wordCount * 0.04);
   if (domain === "unknown") score -= 0.15;
   if (tone === "unknown") score -= 0.05;
@@ -311,8 +307,7 @@ function computeConfidence(
 }
 
 /**
- * 공개 API. LLM 미연결 시 휴리스틱으로 동작.
- * ⚠️ LLM 도입 시: isLlmAvailable() 분기로 LLM 호출 추가.
+ * 공개 API.
  */
 export function extractIntent(prompt: string): RunIntent {
   const p = prompt.toLowerCase().trim();
