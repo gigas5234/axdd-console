@@ -66,9 +66,9 @@ extractIntent(prompt)   ← skills/_runtime/intent.ts
 
 이 3단계 덕분에 사용자가 명시적 키워드("UX 기획") 없이도 자연스러운 자연어로 라우팅됨.
 
-## 4. UX/UI Planning — 10단계 Atomic Skill (NEW · Phase 5)
+## 4. UX/UI Planning — 11단계 Atomic Skill (Phase 5 → Phase 7-G)
 
-UX/UI Planning Work Unit이 **10개 atomic skill**로 분해됐다. 각 스킬은 SKILL.md만 보면 단독으로 이해 가능한 작은 단위:
+UX/UI Planning Work Unit이 **11개 atomic skill**로 분해됐다 (Phase 7-G에서 \`design-system-ingest-skill\` 추가). 각 스킬은 SKILL.md만 보면 단독으로 이해 가능한 단위:
 
 \`\`\`
 common-start

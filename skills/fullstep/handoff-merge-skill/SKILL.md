@@ -21,6 +21,11 @@ UI 트랙(Step 2-5)과 UX 트랙(Step 6-8) 산출물을 **합쳐서 프론트엔
 | `ux_process_plan` | MD | ❌ | Step 6 (UX 트랙 skip 시 부재) |
 | `user_flow` | MD | ❌ | Step 7 (UX 트랙 skip 시 부재) |
 | `ia` | MD | ❌ | Step 8 (UX 트랙 skip 시 부재) |
+| `design_system_profile` | MD | ❌ | previous-skill (design-system-ingest) — DS 출처 요약 |
+| `design_tokens` | JSON | ❌ | previous-skill (design-system-ingest) — 토큰 사전 |
+| `figma_variable_mapping` | MD | ❌ | previous-skill (design-system-ingest) |
+| `tailwind_token_mapping` | MD | ❌ | previous-skill (design-system-ingest) — **React 핸드오프 1순위 인용** |
+| `component_library_mapping` | MD | ❌ | previous-skill (design-system-ingest) |
 
 ## 🔀 분기
 
@@ -28,6 +33,18 @@ UI 트랙(Step 2-5)과 UX 트랙(Step 6-8) 산출물을 **합쳐서 프론트엔
 |---|---|
 | UI + UX 트랙 모두 완료 | 8섹션 풀세트 핸드오프 |
 | UI 트랙만 완료 (Bootstrap / UX skip) | UI 5섹션만 + "UX 트랙 미수행" 마커 |
+| `design-system-ingest` 산출물 있음 | **핸드오프 상단에 DS 출처 + 토큰 인용 가이드 박스 삽입** |
+
+## 📌 Design System Usage Rule (HARD)
+
+**`design_system_profile`, `design_tokens`, `figma_variable_mapping`, `tailwind_token_mapping`, `component_library_mapping` 가 하나라도 들어오면 핸드오프는 반드시 그것을 1순위로 인용한다.**
+
+- 핸드오프 상단 "DS 출처" 박스에 `design_system_profile.md` 의 요약 (사내 / 고객사 / 신규)을 그대로 인용
+- Design Tokens 섹션은 `design_tokens.json` 의 키-값을 그대로 표로 옮긴다 (인라인 hex 금지)
+- Component Spec 섹션의 컴포넌트 이름은 `component_library_mapping.md` 의 매핑 사용
+- React/TypeScript 코드 스니펫에는 `tailwind_token_mapping.md` 의 Tailwind 클래스 사용
+- Figma 핸드오프 노트에는 `figma_variable_mapping.md` 의 Variable 경로 사용
+- 미매핑·갈등 케이스도 그대로 핸드오프 부록에 옮긴다 (개발자가 알아야 함)
 
 ## 📤 Output
 - `handoff.md` — 마스터 핸드오프

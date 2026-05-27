@@ -1,0 +1,198 @@
+{
+  "_meta": {
+    "source": "kt-design-system",
+    "version": "1.0.0",
+    "philosophy": "Seamless Flow",
+    "brandSummary": "KT Red (passion · innovation) + KT Black (trust)",
+    "exportedBy": "AXDD SkillOps Console — Enterprise Lite (Phase 7-H)",
+    "spec": "kt-tokens.css 의 CSS custom properties 를 JSON 시드로 변환"
+  },
+  "color": {
+    "brand": {
+      "red":         "#E60012",
+      "red-hover":   "#C70010",
+      "red-pressed": "#A8000D",
+      "red-soft":    "#FFEDEE",
+      "black":       "#141414",
+      "black-hover": "#000000",
+      "white":       "#FFFFFF"
+    },
+    "gray": {
+      "50":  "#FAFAFA",
+      "100": "#F4F4F5",
+      "200": "#E6E6E8",
+      "300": "#D1D1D6",
+      "400": "#A8A8B0",
+      "500": "#76767E",
+      "600": "#54545B",
+      "700": "#3A3A40",
+      "800": "#25252A",
+      "900": "#18181B",
+      "950": "#0A0A0B"
+    },
+    "semantic": {
+      "info":            "#2A6FDB",
+      "info-soft":       "#EAF1FC",
+      "success":         "#1F8A5B",
+      "success-soft":    "#E6F4ED",
+      "success-bright":  "#4ADE80",
+      "warning":         "#C77700",
+      "warning-soft":    "#FDF2DE",
+      "danger":          "#D7263D",
+      "danger-soft":     "#FCEAEC",
+      "danger-hover":    "#B61E32"
+    },
+    "surface": {
+      "base":     "#FFFFFF",
+      "subtle":   "#FAFAFA",
+      "muted":    "#F4F4F5",
+      "inverse":  "#141414",
+      "overlay":  "rgba(20, 20, 20, 0.48)"
+    },
+    "text": {
+      "primary":   "#18181B",
+      "muted":     "#54545B",
+      "subtle":    "#76767E",
+      "disabled":  "#A8A8B0",
+      "inverse":   "#FFFFFF",
+      "brand":     "#E60012",
+      "link":      "#E60012"
+    },
+    "border": {
+      "default":  "#E6E6E8",
+      "strong":   "#D1D1D6",
+      "focus":    "#E60012",
+      "inverse":  "#25252A"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "sans": "\"Pretendard\", \"Pretendard Variable\", -apple-system, BlinkMacSystemFont, \"Apple SD Gothic Neo\", \"Noto Sans KR\", \"Segoe UI\", Roboto, sans-serif",
+      "mono": "\"JetBrains Mono\", \"SF Mono\", ui-monospace, \"Cascadia Code\", Menlo, monospace"
+    },
+    "size": {
+      "2xs":  "11px",
+      "xs":   "12px",
+      "sm":   "14px",
+      "base": "16px",
+      "lg":   "18px",
+      "xl":   "20px",
+      "2xl":  "24px",
+      "3xl":  "30px",
+      "4xl":  "36px",
+      "5xl":  "48px",
+      "6xl":  "60px",
+      "7xl":  "76px"
+    },
+    "lineHeight": {
+      "tight":   1.15,
+      "snug":    1.35,
+      "normal":  1.55,
+      "relaxed": 1.7
+    },
+    "tracking": {
+      "tight":  "-0.02em",
+      "normal": "0",
+      "wide":   "0.04em"
+    },
+    "weight": {
+      "regular":  400,
+      "medium":   500,
+      "semibold": 600,
+      "bold":     700,
+      "black":    800
+    }
+  },
+  "space": {
+    "0":  "0px",
+    "1":  "4px",
+    "2":  "8px",
+    "3":  "12px",
+    "4":  "16px",
+    "5":  "20px",
+    "6":  "24px",
+    "8":  "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px",
+    "20": "80px",
+    "24": "96px",
+    "32": "128px"
+  },
+  "radius": {
+    "xs":   "4px",
+    "sm":   "6px",
+    "md":   "10px",
+    "lg":   "14px",
+    "xl":   "20px",
+    "2xl":  "28px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "xs":          "0 1px 2px rgba(20, 20, 20, 0.04)",
+    "sm":          "0 1px 3px rgba(20, 20, 20, 0.06), 0 1px 2px rgba(20, 20, 20, 0.04)",
+    "md":          "0 4px 12px rgba(20, 20, 20, 0.06), 0 2px 4px rgba(20, 20, 20, 0.04)",
+    "lg":          "0 12px 28px rgba(20, 20, 20, 0.08), 0 4px 8px rgba(20, 20, 20, 0.04)",
+    "xl":          "0 24px 56px rgba(20, 20, 20, 0.12), 0 8px 16px rgba(20, 20, 20, 0.06)",
+    "focus":       "0 0 0 4px rgba(230, 0, 18, 0.18)",
+    "focus-info":  "0 0 0 4px rgba(42, 111, 219, 0.22)"
+  },
+  "motion": {
+    "duration": {
+      "fast":   "120ms",
+      "base":   "200ms",
+      "slow":   "320ms",
+      "slower": "560ms"
+    },
+    "easing": {
+      "flow":   "cubic-bezier(0.22, 0.61, 0.36, 1)",
+      "out":    "cubic-bezier(0.16, 1, 0.3, 1)",
+      "in":     "cubic-bezier(0.7, 0, 0.84, 0)",
+      "in-out": "cubic-bezier(0.65, 0, 0.35, 1)"
+    }
+  },
+  "layout": {
+    "container": {
+      "sm":  "640px",
+      "md":  "768px",
+      "lg":  "1024px",
+      "xl":  "1280px",
+      "2xl": "1440px"
+    },
+    "zIndex": {
+      "base":     0,
+      "dropdown": 1000,
+      "sticky":   1100,
+      "overlay":  1200,
+      "modal":    1300,
+      "toast":    1400,
+      "tooltip":  1500
+    }
+  },
+  "darkMode": {
+    "color": {
+      "surface": {
+        "base":     "#0A0A0B",
+        "subtle":   "#131316",
+        "muted":    "#1B1B1F",
+        "inverse":  "#FFFFFF",
+        "overlay":  "rgba(0, 0, 0, 0.6)"
+      },
+      "text": {
+        "primary":  "#F5F5F7",
+        "muted":    "#B4B4BB",
+        "subtle":   "#88888F",
+        "disabled": "#54545B",
+        "inverse":  "#141414"
+      },
+      "border": {
+        "default": "#2A2A2F",
+        "strong":  "#3A3A40"
+      }
+    },
+    "activation": {
+      "selector": "[data-theme=\"dark\"], .kt-dark",
+      "togglerExample": "document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';"
+    }
+  }
+}

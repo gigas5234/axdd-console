@@ -1,8 +1,8 @@
 /**
  * Skill Registry — id → SkillRunner 매핑.
  *
- * Phase 5 (atomic skill 재구성) 완료 상태:
- *   - UX/UI 워크유닛: 10개 atomic skill로 분해됨
+ * Phase 5 (atomic skill 재구성) → Phase 7-G (DS ingest 추가) 완료 상태:
+ *   - UX/UI 워크유닛: 11개 atomic skill로 분해됨 (design-system-ingest-skill 포함)
  *   - 다른 워크유닛: 기존 스킬 유지 (simple-summary, output-validation 등 공유)
  */
 
@@ -12,9 +12,10 @@ import type { SkillRunner, SkillRunInput, SkillRunOutput } from "./types";
 import simpleSummary from "../simple/simple-summary-skill/runner";
 import outputValidation from "../test/output-validation-skill/runner";
 
-// UX/UI Planning Workunit — 10개 atomic skill
+// UX/UI Planning Workunit — 11개 atomic skill (Phase 7-G: design-system-ingest 추가)
 import uiUxRequirementExtract from "../simple/ui-ux-requirement-extract-skill/runner";
 import uiElementExtract from "../reference/ui-element-extract-skill/runner";
+import designSystemIngest from "../reference/design-system-ingest-skill/runner";
 import uiFoundationBuild from "../reference/ui-foundation-build-skill/runner";
 import componentSpecWrite from "../asset/component-spec-write-skill/runner";
 import sampleScreenDesign from "../asset/sample-screen-design-skill/runner";
@@ -33,9 +34,10 @@ const RUNNERS: SkillRunner[] = [
   // 공통
   simpleSummary,
   outputValidation,
-  // UX/UI 10 atomic
+  // UX/UI 11 atomic
   uiUxRequirementExtract,
   uiElementExtract,
+  designSystemIngest,
   uiFoundationBuild,
   componentSpecWrite,
   sampleScreenDesign,

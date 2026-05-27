@@ -13,7 +13,7 @@
  * 사용자가 Claude Code 또는 Cursor에서 직접 돌린다.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Download,
   Package,
@@ -73,6 +73,16 @@ export function PromptRunner() {
     () => Object.fromEntries(skills.map((s) => [s.id, s])),
     [],
   );
+
+  // Enterprise profile은 UX/UI 워크유닛 전용 — 다른 워크유닛이 선택돼 있으면 자동 보정
+  useEffect(() => {
+    if (
+      profile === "enterprise" &&
+      selectedWorkUnitId !== "ux-ui-planning-workunit"
+    ) {
+      setSelectedWorkUnitId("ux-ui-planning-workunit");
+    }
+  }, [profile, selectedWorkUnitId]);
 
   const workUnit: WorkUnit | undefined = workUnits.find(
     (w) => w.id === selectedWorkUnitId,
@@ -228,29 +238,44 @@ export function PromptRunner() {
             <CardHeader>
               <CardTitle>2. Work Unit 선택</CardTitle>
               <p className="text-xs text-ink-500 mt-1">
-                어떤 워크유닛의 atomic skill을 포함할지
+                {profile === "enterprise"
+                  ? "Enterprise는 UX/UI 워크유닛만 지원합니다 (다른 워크유닛은 UX/UI 자산 매핑 없음)"
+                  : "어떤 워크유닛을 단일 Claude Code skill로 패키징할지"}
               </p>
             </CardHeader>
             <CardBody className="pt-2 space-y-2">
               {workUnits.map((w) => {
                 const active = w.id === selectedWorkUnitId;
+                // Enterprise profile은 UX/UI 워크유닛만 의미 있음
+                // (다른 워크유닛은 UX/UI 전용 references/assets와 매핑되지 않아 출력 부실)
+                const isUxUi = w.id === "ux-ui-planning-workunit";
+                const disabled = profile === "enterprise" && !isUxUi;
                 return (
                   <button
                     key={w.id}
-                    onClick={() => setSelectedWorkUnitId(w.id)}
+                    onClick={() => !disabled && setSelectedWorkUnitId(w.id)}
+                    disabled={disabled}
                     className={cn(
                       "w-full text-left rounded-lg border px-3 py-2.5 transition",
-                      active
+                      disabled && "opacity-40 cursor-not-allowed",
+                      !disabled && active
                         ? "border-accent-indigo bg-indigo-50/50 ring-2 ring-accent-indigo/20"
-                        : "border-ink-200 bg-white hover:bg-ink-50",
+                        : !disabled
+                          ? "border-ink-200 bg-white hover:bg-ink-50"
+                          : "border-ink-200 bg-ink-50",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <div className="text-sm font-semibold text-ink-900 truncate">
                         {w.name}
                       </div>
-                      {active && (
+                      {active && !disabled && (
                         <CheckCircle2 className="h-3.5 w-3.5 text-accent-indigo ml-auto shrink-0" />
+                      )}
+                      {disabled && (
+                        <span className="ml-auto text-[10px] text-ink-400 shrink-0">
+                          Enterprise 미지원
+                        </span>
                       )}
                     </div>
                     <div className="text-[11px] text-ink-500 mt-0.5 truncate">

@@ -1,0 +1,243 @@
+/* ============================================================
+   KT Design System — Design Tokens
+   Inspired by KT UX Design System "Seamless Flow"
+   ------------------------------------------------------------
+   Brand: KT Red (passion · innovation) + KT Black (trust)
+   Usage: link this file BEFORE components.css
+   ============================================================ */
+
+:root {
+  /* ─────────────────────────────────────────────────────────
+     1. BRAND COLORS
+     ───────────────────────────────────────────────────────── */
+  --kt-red:         #E60012;          /* KT signature red       */
+  --kt-red-hover:   #C70010;
+  --kt-red-pressed: #A8000D;
+  --kt-red-soft:    #FFEDEE;          /* tinted backgrounds     */
+  --kt-black:       #141414;          /* KT signature black     */
+
+  /* ─────────────────────────────────────────────────────────
+     2. NEUTRAL SCALE  (gray 50 → 950)
+     ───────────────────────────────────────────────────────── */
+  --kt-gray-50:  #FAFAFA;
+  --kt-gray-100: #F4F4F5;
+  --kt-gray-200: #E6E6E8;
+  --kt-gray-300: #D1D1D6;
+  --kt-gray-400: #A8A8B0;
+  --kt-gray-500: #76767E;
+  --kt-gray-600: #54545B;
+  --kt-gray-700: #3A3A40;
+  --kt-gray-800: #25252A;
+  --kt-gray-900: #18181B;
+  --kt-gray-950: #0A0A0B;
+
+  /* ─────────────────────────────────────────────────────────
+     3. SEMANTIC COLORS
+     ───────────────────────────────────────────────────────── */
+  --kt-info:    #2A6FDB;
+  --kt-info-soft:    #EAF1FC;
+  --kt-success: #1F8A5B;
+  --kt-success-soft: #E6F4ED;
+  --kt-warning: #C77700;
+  --kt-warning-soft: #FDF2DE;
+  --kt-danger:  #D7263D;
+  --kt-danger-soft:  #FCEAEC;
+
+  /* Phase 7-H — additional tokens (formerly hardcoded in components.css) */
+  --kt-white:          #FFFFFF;
+  --kt-black-hover:    #000000;
+  --kt-danger-hover:   #B61E32;
+  --kt-success-bright: #4ADE80;
+
+  /* ─────────────────────────────────────────────────────────
+     4. SURFACE / BACKGROUND
+     ───────────────────────────────────────────────────────── */
+  --kt-bg:           #FFFFFF;
+  --kt-bg-subtle:    var(--kt-gray-50);
+  --kt-bg-muted:     var(--kt-gray-100);
+  --kt-bg-inverse:   var(--kt-black);
+  --kt-overlay:      rgba(20, 20, 20, 0.48);
+
+  /* ─────────────────────────────────────────────────────────
+     5. TEXT
+     ───────────────────────────────────────────────────────── */
+  --kt-text:         var(--kt-gray-900);  /* primary text       */
+  --kt-text-muted:   var(--kt-gray-600);  /* secondary          */
+  --kt-text-subtle:  var(--kt-gray-500);  /* captions, hints    */
+  --kt-text-disabled:var(--kt-gray-400);
+  --kt-text-inverse: #FFFFFF;
+  --kt-text-brand:   var(--kt-red);
+  --kt-text-link:    var(--kt-red);
+
+  /* ─────────────────────────────────────────────────────────
+     6. BORDER
+     ───────────────────────────────────────────────────────── */
+  --kt-border:        var(--kt-gray-200);
+  --kt-border-strong: var(--kt-gray-300);
+  --kt-border-focus:  var(--kt-red);
+  --kt-border-inverse:var(--kt-gray-800);
+
+  /* ─────────────────────────────────────────────────────────
+     7. TYPOGRAPHY
+     ───────────────────────────────────────────────────────── */
+  --kt-font-sans: "Pretendard", "Pretendard Variable", -apple-system,
+                  BlinkMacSystemFont, "Apple SD Gothic Neo",
+                  "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+  --kt-font-mono: "JetBrains Mono", "SF Mono", ui-monospace,
+                  "Cascadia Code", Menlo, monospace;
+
+  /* type scale — 8pt rhythm, telco-friendly density */
+  --kt-text-2xs:  11px;
+  --kt-text-xs:   12px;
+  --kt-text-sm:   14px;
+  --kt-text-base: 16px;   /* body                */
+  --kt-text-lg:   18px;
+  --kt-text-xl:   20px;
+  --kt-text-2xl:  24px;   /* h4                  */
+  --kt-text-3xl:  30px;   /* h3                  */
+  --kt-text-4xl:  36px;   /* h2                  */
+  --kt-text-5xl:  48px;   /* h1                  */
+  --kt-text-6xl:  60px;   /* display             */
+  --kt-text-7xl:  76px;   /* hero / Seamless     */
+
+  --kt-leading-tight:   1.15;
+  --kt-leading-snug:    1.35;
+  --kt-leading-normal:  1.55;
+  --kt-leading-relaxed: 1.7;
+
+  --kt-tracking-tight:   -0.02em;
+  --kt-tracking-normal:  0;
+  --kt-tracking-wide:    0.04em;
+
+  --kt-weight-regular:  400;
+  --kt-weight-medium:   500;
+  --kt-weight-semibold: 600;
+  --kt-weight-bold:     700;
+  --kt-weight-black:    800;
+
+  /* ─────────────────────────────────────────────────────────
+     8. SPACING  (4pt grid)
+     ───────────────────────────────────────────────────────── */
+  --kt-space-0:   0px;
+  --kt-space-1:   4px;
+  --kt-space-2:   8px;
+  --kt-space-3:   12px;
+  --kt-space-4:   16px;
+  --kt-space-5:   20px;
+  --kt-space-6:   24px;
+  --kt-space-8:   32px;
+  --kt-space-10:  40px;
+  --kt-space-12:  48px;
+  --kt-space-16:  64px;
+  --kt-space-20:  80px;
+  --kt-space-24:  96px;
+  --kt-space-32: 128px;
+
+  /* ─────────────────────────────────────────────────────────
+     9. RADIUS
+     ───────────────────────────────────────────────────────── */
+  --kt-radius-xs:   4px;
+  --kt-radius-sm:   6px;
+  --kt-radius-md:   10px;   /* default control radius */
+  --kt-radius-lg:   14px;
+  --kt-radius-xl:   20px;
+  --kt-radius-2xl:  28px;
+  --kt-radius-full: 9999px;
+
+  /* ─────────────────────────────────────────────────────────
+    10. SHADOWS — subtle, "trustworthy", no heavy drop shadows
+     ───────────────────────────────────────────────────────── */
+  --kt-shadow-xs: 0 1px 2px rgba(20, 20, 20, 0.04);
+  --kt-shadow-sm: 0 1px 3px rgba(20, 20, 20, 0.06),
+                  0 1px 2px rgba(20, 20, 20, 0.04);
+  --kt-shadow-md: 0 4px 12px rgba(20, 20, 20, 0.06),
+                  0 2px 4px rgba(20, 20, 20, 0.04);
+  --kt-shadow-lg: 0 12px 28px rgba(20, 20, 20, 0.08),
+                  0 4px 8px rgba(20, 20, 20, 0.04);
+  --kt-shadow-xl: 0 24px 56px rgba(20, 20, 20, 0.12),
+                  0 8px 16px rgba(20, 20, 20, 0.06);
+  --kt-shadow-focus: 0 0 0 4px rgba(230, 0, 18, 0.18);
+  --kt-shadow-focus-info: 0 0 0 4px rgba(42, 111, 219, 0.22);
+
+  /* ─────────────────────────────────────────────────────────
+    11. MOTION
+     ───────────────────────────────────────────────────────── */
+  --kt-duration-fast:   120ms;
+  --kt-duration-base:   200ms;
+  --kt-duration-slow:   320ms;
+  --kt-duration-slower: 560ms;
+
+  /* Flow easing — KT "Seamless Flow" feel */
+  --kt-ease-flow:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --kt-ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --kt-ease-in:      cubic-bezier(0.7, 0, 0.84, 0);
+  --kt-ease-in-out:  cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ─────────────────────────────────────────────────────────
+    12. LAYOUT
+     ───────────────────────────────────────────────────────── */
+  --kt-container-sm:  640px;
+  --kt-container-md:  768px;
+  --kt-container-lg: 1024px;
+  --kt-container-xl: 1280px;
+  --kt-container-2xl:1440px;
+
+  --kt-z-base:     0;
+  --kt-z-dropdown: 1000;
+  --kt-z-sticky:   1100;
+  --kt-z-overlay:  1200;
+  --kt-z-modal:    1300;
+  --kt-z-toast:    1400;
+  --kt-z-tooltip:  1500;
+}
+
+/* ============================================================
+   DARK MODE — opt-in via [data-theme="dark"] or .kt-dark
+   ============================================================ */
+[data-theme="dark"],
+.kt-dark {
+  --kt-bg:           #0A0A0B;
+  --kt-bg-subtle:    #131316;
+  --kt-bg-muted:     #1B1B1F;
+  --kt-bg-inverse:   #FFFFFF;
+  --kt-overlay:      rgba(0, 0, 0, 0.6);
+
+  --kt-text:         #F5F5F7;
+  --kt-text-muted:   #B4B4BB;
+  --kt-text-subtle:  #88888F;
+  --kt-text-disabled:#54545B;
+  --kt-text-inverse: var(--kt-black);
+
+  --kt-border:        #2A2A2F;
+  --kt-border-strong: #3A3A40;
+
+  --kt-red-soft:    rgba(230, 0, 18, 0.14);
+  --kt-info-soft:   rgba(42, 111, 219, 0.16);
+  --kt-success-soft:rgba(31, 138, 91, 0.16);
+  --kt-warning-soft:rgba(199, 119, 0, 0.18);
+  --kt-danger-soft: rgba(215, 38, 61, 0.18);
+
+  --kt-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --kt-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --kt-shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5);
+  --kt-shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.55);
+  --kt-shadow-xl: 0 28px 64px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================
+   BASE RESET (lightweight — opt-in via .kt-root)
+   ============================================================ */
+.kt-root,
+.kt-root * {
+  box-sizing: border-box;
+}
+.kt-root {
+  font-family: var(--kt-font-sans);
+  font-size: var(--kt-text-base);
+  line-height: var(--kt-leading-normal);
+  color: var(--kt-text);
+  background: var(--kt-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}

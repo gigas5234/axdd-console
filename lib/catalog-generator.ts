@@ -172,7 +172,7 @@ export function buildRootCatalog(
   lines.push("");
   lines.push("# 모든 work-unit 정의 검증");
   lines.push(
-    "for d in work-units/*; do python3 validation/axe_check.py validate-workunit \"$d\"; done",
+    "for d in work-units/*; do python3 validation/axe_check.py validate-workunit \"$d\" --lite; done",
   );
   lines.push("```");
   lines.push("");

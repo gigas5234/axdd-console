@@ -52,6 +52,11 @@ export function buildUxuiContent(
     if (basename === "risk-template.md") return ASSET_RISK;
     if (basename === "validation-checklist.md") return ASSET_VALIDATION_CHECKLIST;
     if (basename === "milestone-template.html") return ASSET_MILESTONE_HTML;
+    // Phase 7-G — design-system-ingest-skill assets
+    if (basename === "design-token-template.json") return ASSET_DESIGN_TOKEN_JSON;
+    if (basename === "tailwind-token-mapping.md") return ASSET_TAILWIND_MAPPING;
+    if (basename === "figma-variable-mapping.md") return ASSET_FIGMA_VAR_MAPPING;
+    if (basename === "component-library-template.md") return ASSET_COMPONENT_LIB;
     return buildGenericAsset(basename, skill);
   }
 
@@ -1583,6 +1588,313 @@ const ASSET_MILESTONE_HTML = `<!DOCTYPE html>
 `;
 
 /* ═══════════════════════════════════════════════════════════════
+ * Phase 7-G — design-system-ingest-skill assets (5종)
+ * ═══════════════════════════════════════════════════════════════ */
+
+const ASSET_DESIGN_TOKEN_JSON = `{
+  "_meta": {
+    "source": "axdd-internal",
+    "fallbackApplied": false,
+    "version": "0.1.0",
+    "description": "AXDD design token seed. Replace __AXDD_DS__ with real hex from internal design system."
+  },
+  "color": {
+    "brand": {
+      "primary": "#__AXDD_DS__",
+      "primary-hover": "#__AXDD_DS__",
+      "primary-pressed": "#__AXDD_DS__",
+      "accent": "#__AXDD_DS__"
+    },
+    "surface": {
+      "base": "#__AXDD_DS__",
+      "elevated": "#__AXDD_DS__",
+      "muted": "#__AXDD_DS__"
+    },
+    "ink": {
+      "primary": "#__AXDD_DS__",
+      "secondary": "#__AXDD_DS__",
+      "disabled": "#__AXDD_DS__",
+      "inverse": "#__AXDD_DS__"
+    },
+    "border": {
+      "default": "#__AXDD_DS__",
+      "focus": "#__AXDD_DS__"
+    },
+    "status": {
+      "success": "#__AXDD_DS__",
+      "warning": "#__AXDD_DS__",
+      "error": "#__AXDD_DS__",
+      "info": "#__AXDD_DS__"
+    }
+  },
+  "text": {
+    "display": { "size": "32px", "lineHeight": "40px", "weight": 700 },
+    "h1":      { "size": "24px", "lineHeight": "32px", "weight": 600 },
+    "h2":      { "size": "20px", "lineHeight": "28px", "weight": 600 },
+    "h3":      { "size": "18px", "lineHeight": "26px", "weight": 600 },
+    "body":    { "size": "14px", "lineHeight": "22px", "weight": 400 },
+    "caption": { "size": "12px", "lineHeight": "18px", "weight": 400 },
+    "code":    { "size": "13px", "lineHeight": "20px", "weight": 500, "family": "mono" }
+  },
+  "space": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px",
+    "2xl": "32px",
+    "3xl": "48px"
+  },
+  "radius": {
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 2px rgba(0,0,0,0.05)",
+    "md": "0 3px 6px rgba(0,0,0,0.08)",
+    "lg": "0 10px 20px rgba(0,0,0,0.12)"
+  },
+  "motion": {
+    "fast": "120ms ease-out",
+    "normal": "200ms ease-out",
+    "slow": "400ms ease-out"
+  },
+  "breakpoint": {
+    "sm": "640px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px"
+  }
+}
+`;
+
+const ASSET_TAILWIND_MAPPING = `# Tailwind Token Mapping
+
+> AXDD 디자인 토큰 → Tailwind config 변환 가이드.
+> \`design_tokens.json\`을 받아 \`tailwind.config.js\`의 \`theme.extend\`에 시드.
+
+## 1. 변환 룰
+
+| AXDD Token | Tailwind 위치 | Tailwind class |
+|---|---|---|
+| \`color/brand/primary\` | \`theme.extend.colors.brand.primary\` | \`bg-brand-primary\` |
+| \`color/surface/base\` | \`theme.extend.colors.surface.base\` | \`bg-surface-base\` |
+| \`color/ink/primary\` | \`theme.extend.colors.ink.primary\` | \`text-ink-primary\` |
+| \`color/border/default\` | \`theme.extend.colors.border.default\` | \`border-border-default\` |
+| \`color/status/error\` | \`theme.extend.colors.status.error\` | \`bg-status-error\` |
+| \`text/h1\` (size) | \`theme.extend.fontSize.h1\` | \`text-h1\` |
+| \`space/lg\` | \`theme.extend.spacing.lg\` | \`p-lg\`, \`gap-lg\` |
+| \`radius/md\` | \`theme.extend.borderRadius.md\` | \`rounded-md\` |
+| \`shadow/md\` | \`theme.extend.boxShadow.md\` | \`shadow-md\` |
+
+## 2. Sample tailwind.config.js
+
+\`\`\`js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        brand:   { primary: '#__AXDD_DS__', accent: '#__AXDD_DS__' },
+        surface: { base: '#__AXDD_DS__', elevated: '#__AXDD_DS__' },
+        ink:     { primary: '#__AXDD_DS__', secondary: '#__AXDD_DS__' },
+        border:  { default: '#__AXDD_DS__', focus: '#__AXDD_DS__' },
+        status:  { success: '#__AXDD_DS__', warning: '#__AXDD_DS__', error: '#__AXDD_DS__', info: '#__AXDD_DS__' },
+      },
+      fontSize: {
+        display: ['32px', { lineHeight: '40px', fontWeight: '700' }],
+        h1:      ['24px', { lineHeight: '32px', fontWeight: '600' }],
+        h2:      ['20px', { lineHeight: '28px', fontWeight: '600' }],
+        h3:      ['18px', { lineHeight: '26px', fontWeight: '600' }],
+        body:    ['14px', { lineHeight: '22px', fontWeight: '400' }],
+        caption: ['12px', { lineHeight: '18px', fontWeight: '400' }],
+      },
+      spacing: {
+        xs:  '4px',  sm: '8px',  md: '12px',
+        lg:  '16px', xl: '24px', '2xl': '32px', '3xl': '48px',
+      },
+      borderRadius: { sm: '4px', md: '8px', lg: '12px' },
+      boxShadow: {
+        sm: '0 1px 2px rgba(0,0,0,0.05)',
+        md: '0 3px 6px rgba(0,0,0,0.08)',
+        lg: '0 10px 20px rgba(0,0,0,0.12)',
+      },
+      transitionDuration: { fast: '120ms', normal: '200ms', slow: '400ms' },
+    },
+  },
+  plugins: [],
+};
+\`\`\`
+
+## 3. 컴포넌트 예시
+
+\`\`\`tsx
+// Button (primary)
+<button className="bg-brand-primary text-ink-inverse px-lg py-sm rounded-md shadow-sm hover:bg-brand-primary-hover">
+  Save
+</button>
+
+// Card (elevated)
+<div className="bg-surface-elevated rounded-lg shadow-md p-lg">
+  ...
+</div>
+\`\`\`
+
+## 4. Anti-patterns
+
+| ❌ | ✅ |
+|---|---|
+| \`bg-[#1E40AF]\` (인라인 hex) | \`bg-brand-primary\` |
+| \`p-[10px]\` (4의 배수 위반) | \`p-md\` (12px) |
+| \`text-[16px]\` | \`text-body\` |
+
+## 5. 자동 import 흐름
+
+1. \`design_tokens.json\` 읽기
+2. 위 변환 룰 적용
+3. \`tailwind.config.js\` 생성 (또는 기존 config의 \`theme.extend\`에 머지)
+4. \`npx tailwindcss\` 빌드 → 사용 가능
+`;
+
+const ASSET_FIGMA_VAR_MAPPING = `# Figma Variables Mapping
+
+> \`design_tokens.json\` → Figma Variables (Variables Collections) 매핑.
+> Figma 2024+ 의 Variables API 기준.
+
+## 1. Collection 분류
+
+| AXDD 카테고리 | Figma Collection | 비고 |
+|---|---|---|
+| color/* | \`AXDD/Color\` | mode: Light, Dark (옵션) |
+| text/* | \`AXDD/Typography\` | size + lineHeight + weight 묶음 |
+| space/* | \`AXDD/Spacing\` | Number type |
+| radius/* | \`AXDD/Radius\` | Number type |
+| shadow/* | \`AXDD/Shadow\` | Effect 스타일 (Variable 아님 — Effect Styles 사용) |
+| motion/* | \`AXDD/Motion\` | (Figma는 motion variable 미지원 — Prototype 설정에 표기) |
+
+## 2. Color Variable 매핑
+
+\`\`\`
+AXDD/Color/
+├── brand/
+│   ├── primary       → #__AXDD_DS__
+│   ├── primary-hover → #__AXDD_DS__
+│   └── accent        → #__AXDD_DS__
+├── surface/
+│   ├── base          → #__AXDD_DS__
+│   ├── elevated      → #__AXDD_DS__
+│   └── muted         → #__AXDD_DS__
+├── ink/
+│   ├── primary       → #__AXDD_DS__
+│   ├── secondary     → #__AXDD_DS__
+│   ├── disabled      → #__AXDD_DS__
+│   └── inverse       → #__AXDD_DS__
+├── border/
+│   ├── default       → #__AXDD_DS__
+│   └── focus         → #__AXDD_DS__
+└── status/
+    ├── success       → #__AXDD_DS__
+    ├── warning       → #__AXDD_DS__
+    ├── error         → #__AXDD_DS__
+    └── info          → #__AXDD_DS__
+\`\`\`
+
+## 3. Naming 룰
+
+- Figma 변수명은 \`/\` 구분자 사용 → AXDD 토큰명과 일대일 매핑
+- 예: \`color/brand/primary\` → Figma 변수명 \`brand/primary\` (Collection이 AXDD/Color)
+
+## 4. Dark mode (옵션)
+
+\`\`\`
+Collection: AXDD/Color
+Modes: Light · Dark
+Variable: surface/base
+  · Light: #FFFFFF
+  · Dark:  #0F172A
+\`\`\`
+
+## 5. Import 흐름
+
+1. \`design_tokens.json\` 받기
+2. Figma Token Studio plugin 또는 Variables API로 import
+3. Collection 생성 → Variable 추가 → 컴포넌트 인스턴스에 bind
+4. 디자이너가 컴포넌트 사용 시 자동으로 토큰 참조
+
+## 6. MCP 차단 환경
+
+Figma MCP가 차단되어 있으면 수동 절차:
+
+1. \`design_tokens.json\` 다운로드
+2. Figma Token Studio plugin 설치
+3. Plugin에서 JSON import
+4. 모든 컴포넌트 Variable로 rebind
+
+## 7. 검증
+
+- 모든 Color Variable이 Collection에 등록됨
+- 인라인 hex 값 사용한 컴포넌트 0건 (Figma의 Selection Inspector 활용)
+- Light/Dark mode 모두 동작 (해당 시)
+`;
+
+const ASSET_COMPONENT_LIB = `# Component Library Mapping Template
+
+> 고객사 또는 사내 기존 컴포넌트 라이브러리를 AXDD 표준 컴포넌트와 매핑.
+
+## 1. 매핑 표
+
+| 외부 컴포넌트 | AXDD 컴포넌트 | Variant 매핑 | State 매핑 | 비고 |
+|---|---|---|---|---|
+| (예: acme-button) | Button | solid → primary, outline → secondary | hover/focus/disabled 동일 | |
+| (예: acme-card) | Card | flat → default, raised → elevated | default 만 | |
+| (예: acme-modal) | Modal | sm/md/lg/xl → sm/md/lg/fullscreen | open/closed 동일 | |
+| (예: acme-input) | Input | normal/large → md/lg | default/focus/error/disabled 동일 | |
+| (예: acme-toast) | Toast | info/positive/warning/critical → info/success/warning/error | | |
+
+## 2. AXDD 공용 컴포넌트 카탈로그
+
+| Component | Variants | States |
+|---|---|---|
+| Button | primary / secondary / ghost / danger | default / hover / focus / active / disabled / loading |
+| Card | default / elevated / outlined | default / hover (interactive 한정) |
+| Input | text / number / search / textarea | default / focus / error / disabled |
+| Select | single / multi / searchable | default / open / disabled |
+| Modal | sm / md / lg / fullscreen | open / closed |
+| Toast | success / warning / error / info | enter / visible / exit |
+| Table | default / striped / sortable | default / hover row / selected row |
+| Tabs | horizontal / vertical | active / inactive |
+
+## 3. 미매핑 항목 처리
+
+| 상황 | 해결 |
+|---|---|
+| 외부 컴포넌트가 AXDD에 없음 | AXDD에 신규 컴포넌트 신청 (DS 컨트리뷰션 PR) |
+| AXDD 컴포넌트의 일부 variant만 매핑 | 미매핑 variant는 \`unmapped\` 섹션에 명시 |
+| 외부 컴포넌트가 다중 AXDD 컴포넌트와 매핑 | 사용 context별로 분기 매핑 |
+
+## 4. 매핑 검증
+
+- [ ] 외부 카탈로그의 80% 이상 매핑됨
+- [ ] 미매핑 항목은 \`unmapped\` 섹션에 기록 + 신청 PR 링크
+- [ ] 외부 prop ↔ AXDD prop 매핑 표 작성
+- [ ] state 매핑 누락 0건
+- [ ] 사용 예시 (외부 ↔ AXDD 동일 결과) 최소 3건
+
+## 5. unmapped 섹션 예시
+
+\`\`\`
+## Unmapped (외부 → AXDD 신청 필요)
+
+| 외부 컴포넌트 | 필요 사유 | AXDD 신청 PR |
+|---|---|---|
+| acme-data-grid | 대용량 sortable table + virtualization | (PR 링크) |
+| acme-stepper   | 단계별 가이드 컴포넌트 | (PR 링크) |
+\`\`\`
+`;
+/* ═══════════════════════════════════════════════════════════════
  * Tests — 실제 사용 가능한 체크리스트
  * ═══════════════════════════════════════════════════════════════ */
 
@@ -1643,6 +1955,15 @@ python3 ../../validation/axe_check.py validate-skill ../
 function buildSkillPassCriteria(skill: Skill): string {
   // 스킬별 의미 있는 pass criteria
   switch (skill.id) {
+    case "design-system-ingest-skill":
+      // intentionally placed first for visibility
+      return `- 5개 산출물 모두 생성 (design_system_profile.md / design_tokens.json / tailwind_token_mapping.md / figma_variable_mapping.md / component_library_mapping.md)
+- design_tokens.json 이 valid JSON
+- 모든 hex 값이 \`#RRGGBB\` 형식
+- 인라인 hex 0건 (모두 토큰 alias 사용)
+- 컴포넌트 매핑 ≥ 5건 (Button/Card/Input/Modal/Toast 최소)
+- DS 출처 명시 (customer / axdd-internal / fallback)
+- unmapped 섹션 존재 (있을 경우)`;
     case "ui-ux-requirement-extract-skill":
       return `- UI/UX 관련 요구사항 ≥ 3개 식별
 - 백엔드·인프라 영역 누출 0건

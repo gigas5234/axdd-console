@@ -1,0 +1,236 @@
+{
+  "$schema": "https://schemas.designtokens.org/format/v1.json",
+  "$description": "KT Design System — Design Tokens (W3C DTCG format). 동기화 소스: tokens.css. 변환 도구(Style Dictionary, Tokens Studio 등)에서 그대로 사용 가능합니다.",
+  "$metadata": {
+    "name": "KT Design System",
+    "version": "1.0.0",
+    "philosophy": "Seamless Flow",
+    "updatedAt": "2026-05-28"
+  },
+
+  "color": {
+    "brand": {
+      "red":         { "$value": "#E60012", "$type": "color", "$description": "KT Red — 열정·혁신·따뜻한 감성. Primary CTA, 강조 포인트." },
+      "red-hover":   { "$value": "#C70010", "$type": "color" },
+      "red-pressed": { "$value": "#A8000D", "$type": "color" },
+      "red-soft":    { "$value": "#FFEDEE", "$type": "color", "$description": "배지/알림 등 옅은 배경" },
+      "black":       { "$value": "#141414", "$type": "color", "$description": "KT Black — 신뢰. Secondary 버튼, 다크 표면." }
+    },
+
+    "gray": {
+      "50":  { "$value": "#FAFAFA", "$type": "color" },
+      "100": { "$value": "#F4F4F5", "$type": "color" },
+      "200": { "$value": "#E6E6E8", "$type": "color" },
+      "300": { "$value": "#D1D1D6", "$type": "color" },
+      "400": { "$value": "#A8A8B0", "$type": "color" },
+      "500": { "$value": "#76767E", "$type": "color" },
+      "600": { "$value": "#54545B", "$type": "color" },
+      "700": { "$value": "#3A3A40", "$type": "color" },
+      "800": { "$value": "#25252A", "$type": "color" },
+      "900": { "$value": "#18181B", "$type": "color" },
+      "950": { "$value": "#0A0A0B", "$type": "color" }
+    },
+
+    "semantic": {
+      "info":         { "$value": "#2A6FDB", "$type": "color" },
+      "info-soft":    { "$value": "#EAF1FC", "$type": "color" },
+      "success":      { "$value": "#1F8A5B", "$type": "color" },
+      "success-soft": { "$value": "#E6F4ED", "$type": "color" },
+      "warning":      { "$value": "#C77700", "$type": "color" },
+      "warning-soft": { "$value": "#FDF2DE", "$type": "color" },
+      "danger":       { "$value": "#D7263D", "$type": "color" },
+      "danger-soft":  { "$value": "#FCEAEC", "$type": "color" }
+    },
+
+    "surface": {
+      "bg":          { "$value": "#FFFFFF",                "$type": "color", "$description": "기본 페이지 배경" },
+      "bg-subtle":   { "$value": "{color.gray.50}",        "$type": "color" },
+      "bg-muted":    { "$value": "{color.gray.100}",       "$type": "color" },
+      "bg-inverse":  { "$value": "{color.brand.black}",    "$type": "color" },
+      "overlay":     { "$value": "rgba(20, 20, 20, 0.48)", "$type": "color", "$description": "모달 배경" }
+    },
+
+    "text": {
+      "default":  { "$value": "{color.gray.900}", "$type": "color", "$description": "본문" },
+      "muted":    { "$value": "{color.gray.600}", "$type": "color", "$description": "보조 텍스트" },
+      "subtle":   { "$value": "{color.gray.500}", "$type": "color", "$description": "캡션, 힌트" },
+      "disabled": { "$value": "{color.gray.400}", "$type": "color" },
+      "inverse":  { "$value": "#FFFFFF",          "$type": "color" },
+      "brand":    { "$value": "{color.brand.red}","$type": "color" },
+      "link":     { "$value": "{color.brand.red}","$type": "color" }
+    },
+
+    "border": {
+      "default": { "$value": "{color.gray.200}",  "$type": "color" },
+      "strong":  { "$value": "{color.gray.300}",  "$type": "color", "$description": "인풋 보더" },
+      "focus":   { "$value": "{color.brand.red}", "$type": "color" },
+      "inverse": { "$value": "{color.gray.800}",  "$type": "color" }
+    }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "sans": { "$value": ["Pretendard", "Pretendard Variable", "-apple-system", "BlinkMacSystemFont", "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", "Roboto", "sans-serif"], "$type": "fontFamily" },
+      "mono": { "$value": ["JetBrains Mono", "SF Mono", "ui-monospace", "Cascadia Code", "Menlo", "monospace"], "$type": "fontFamily" }
+    },
+
+    "fontSize": {
+      "2xs":  { "$value": "11px", "$type": "dimension" },
+      "xs":   { "$value": "12px", "$type": "dimension" },
+      "sm":   { "$value": "14px", "$type": "dimension" },
+      "base": { "$value": "16px", "$type": "dimension" },
+      "lg":   { "$value": "18px", "$type": "dimension" },
+      "xl":   { "$value": "20px", "$type": "dimension" },
+      "2xl":  { "$value": "24px", "$type": "dimension" },
+      "3xl":  { "$value": "30px", "$type": "dimension" },
+      "4xl":  { "$value": "36px", "$type": "dimension" },
+      "5xl":  { "$value": "48px", "$type": "dimension" },
+      "6xl":  { "$value": "60px", "$type": "dimension" },
+      "7xl":  { "$value": "76px", "$type": "dimension", "$description": "Hero / Seamless display" }
+    },
+
+    "fontWeight": {
+      "regular":  { "$value": 400, "$type": "fontWeight" },
+      "medium":   { "$value": 500, "$type": "fontWeight" },
+      "semibold": { "$value": 600, "$type": "fontWeight" },
+      "bold":     { "$value": 700, "$type": "fontWeight" },
+      "black":    { "$value": 800, "$type": "fontWeight" }
+    },
+
+    "lineHeight": {
+      "tight":   { "$value": 1.15, "$type": "number" },
+      "snug":    { "$value": 1.35, "$type": "number" },
+      "normal":  { "$value": 1.55, "$type": "number" },
+      "relaxed": { "$value": 1.70, "$type": "number" }
+    },
+
+    "letterSpacing": {
+      "tight":  { "$value": "-0.02em", "$type": "dimension" },
+      "normal": { "$value": "0",       "$type": "dimension" },
+      "wide":   { "$value": "0.04em",  "$type": "dimension" }
+    },
+
+    "style": {
+      "display":   { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.7xl}", "fontWeight": "{typography.fontWeight.bold}",     "lineHeight": "{typography.lineHeight.tight}", "letterSpacing": "{typography.letterSpacing.tight}" } },
+      "h1":        { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.5xl}", "fontWeight": "{typography.fontWeight.bold}",     "lineHeight": "{typography.lineHeight.tight}", "letterSpacing": "{typography.letterSpacing.tight}" } },
+      "h2":        { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.4xl}", "fontWeight": "{typography.fontWeight.bold}",     "lineHeight": "{typography.lineHeight.tight}", "letterSpacing": "{typography.letterSpacing.tight}" } },
+      "h3":        { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.3xl}", "fontWeight": "{typography.fontWeight.semibold}", "lineHeight": "{typography.lineHeight.snug}",  "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "h4":        { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.2xl}", "fontWeight": "{typography.fontWeight.semibold}", "lineHeight": "{typography.lineHeight.snug}",  "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "h5":        { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.xl}",  "fontWeight": "{typography.fontWeight.semibold}", "lineHeight": "{typography.lineHeight.snug}",  "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "body-lg":   { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.lg}",   "fontWeight": "{typography.fontWeight.regular}",  "lineHeight": "{typography.lineHeight.relaxed}", "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "body":      { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.base}", "fontWeight": "{typography.fontWeight.regular}",  "lineHeight": "{typography.lineHeight.normal}",  "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "body-sm":   { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.sm}",   "fontWeight": "{typography.fontWeight.regular}",  "lineHeight": "{typography.lineHeight.normal}",  "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "caption":   { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.xs}",   "fontWeight": "{typography.fontWeight.regular}",  "lineHeight": "{typography.lineHeight.normal}",  "letterSpacing": "{typography.letterSpacing.normal}" } },
+      "overline":  { "$type": "typography", "$value": { "fontFamily": "{typography.fontFamily.sans}", "fontSize": "{typography.fontSize.xs}",   "fontWeight": "{typography.fontWeight.semibold}", "lineHeight": "{typography.lineHeight.normal}",  "letterSpacing": "{typography.letterSpacing.wide}",  "textTransform": "uppercase" } }
+    }
+  },
+
+  "spacing": {
+    "0":  { "$value": "0px",   "$type": "dimension" },
+    "1":  { "$value": "4px",   "$type": "dimension" },
+    "2":  { "$value": "8px",   "$type": "dimension" },
+    "3":  { "$value": "12px",  "$type": "dimension" },
+    "4":  { "$value": "16px",  "$type": "dimension" },
+    "5":  { "$value": "20px",  "$type": "dimension" },
+    "6":  { "$value": "24px",  "$type": "dimension" },
+    "8":  { "$value": "32px",  "$type": "dimension" },
+    "10": { "$value": "40px",  "$type": "dimension" },
+    "12": { "$value": "48px",  "$type": "dimension" },
+    "16": { "$value": "64px",  "$type": "dimension" },
+    "20": { "$value": "80px",  "$type": "dimension" },
+    "24": { "$value": "96px",  "$type": "dimension" },
+    "32": { "$value": "128px", "$type": "dimension" }
+  },
+
+  "radius": {
+    "xs":   { "$value": "4px",    "$type": "dimension" },
+    "sm":   { "$value": "6px",    "$type": "dimension" },
+    "md":   { "$value": "10px",   "$type": "dimension", "$description": "기본 컨트롤 반경" },
+    "lg":   { "$value": "14px",   "$type": "dimension", "$description": "카드" },
+    "xl":   { "$value": "20px",   "$type": "dimension", "$description": "모달" },
+    "2xl":  { "$value": "28px",   "$type": "dimension" },
+    "full": { "$value": "9999px", "$type": "dimension" }
+  },
+
+  "shadow": {
+    "xs": { "$type": "shadow", "$value": { "color": "rgba(20,20,20,0.04)", "offsetX": "0", "offsetY": "1px", "blur": "2px", "spread": "0" } },
+    "sm": { "$type": "shadow", "$value": [
+      { "color": "rgba(20,20,20,0.06)", "offsetX": "0", "offsetY": "1px", "blur": "3px", "spread": "0" },
+      { "color": "rgba(20,20,20,0.04)", "offsetX": "0", "offsetY": "1px", "blur": "2px", "spread": "0" }
+    ]},
+    "md": { "$type": "shadow", "$value": [
+      { "color": "rgba(20,20,20,0.06)", "offsetX": "0", "offsetY": "4px",  "blur": "12px", "spread": "0" },
+      { "color": "rgba(20,20,20,0.04)", "offsetX": "0", "offsetY": "2px",  "blur": "4px",  "spread": "0" }
+    ]},
+    "lg": { "$type": "shadow", "$value": [
+      { "color": "rgba(20,20,20,0.08)", "offsetX": "0", "offsetY": "12px", "blur": "28px", "spread": "0" },
+      { "color": "rgba(20,20,20,0.04)", "offsetX": "0", "offsetY": "4px",  "blur": "8px",  "spread": "0" }
+    ]},
+    "xl": { "$type": "shadow", "$value": [
+      { "color": "rgba(20,20,20,0.12)", "offsetX": "0", "offsetY": "24px", "blur": "56px", "spread": "0" },
+      { "color": "rgba(20,20,20,0.06)", "offsetX": "0", "offsetY": "8px",  "blur": "16px", "spread": "0" }
+    ]},
+    "focus":      { "$type": "shadow", "$value": { "color": "rgba(230,0,18,0.18)",  "offsetX": "0", "offsetY": "0", "blur": "0", "spread": "4px" } },
+    "focus-info": { "$type": "shadow", "$value": { "color": "rgba(42,111,219,0.22)","offsetX": "0", "offsetY": "0", "blur": "0", "spread": "4px" } }
+  },
+
+  "motion": {
+    "duration": {
+      "fast":   { "$value": "120ms", "$type": "duration" },
+      "base":   { "$value": "200ms", "$type": "duration" },
+      "slow":   { "$value": "320ms", "$type": "duration" },
+      "slower": { "$value": "560ms", "$type": "duration" }
+    },
+    "easing": {
+      "flow":    { "$value": "cubic-bezier(0.22, 0.61, 0.36, 1)", "$type": "cubicBezier", "$description": "Seamless Flow — 기본" },
+      "out":     { "$value": "cubic-bezier(0.16, 1, 0.3, 1)",      "$type": "cubicBezier" },
+      "in":      { "$value": "cubic-bezier(0.7, 0, 0.84, 0)",      "$type": "cubicBezier" },
+      "in-out":  { "$value": "cubic-bezier(0.65, 0, 0.35, 1)",     "$type": "cubicBezier" }
+    }
+  },
+
+  "layout": {
+    "container": {
+      "sm":  { "$value": "640px",  "$type": "dimension" },
+      "md":  { "$value": "768px",  "$type": "dimension" },
+      "lg":  { "$value": "1024px", "$type": "dimension" },
+      "xl":  { "$value": "1280px", "$type": "dimension" },
+      "2xl": { "$value": "1440px", "$type": "dimension" }
+    },
+    "zIndex": {
+      "base":     { "$value": 0,    "$type": "number" },
+      "dropdown": { "$value": 1000, "$type": "number" },
+      "sticky":   { "$value": 1100, "$type": "number" },
+      "overlay":  { "$value": 1200, "$type": "number" },
+      "modal":    { "$value": 1300, "$type": "number" },
+      "toast":    { "$value": 1400, "$type": "number" },
+      "tooltip":  { "$value": 1500, "$type": "number" }
+    }
+  },
+
+  "theme": {
+    "dark": {
+      "$description": "다크모드 오버라이드. [data-theme='dark'] 또는 .kt-dark 에서 적용.",
+      "color": {
+        "surface": {
+          "bg":         { "$value": "#0A0A0B", "$type": "color" },
+          "bg-subtle":  { "$value": "#131316", "$type": "color" },
+          "bg-muted":   { "$value": "#1B1B1F", "$type": "color" },
+          "bg-inverse": { "$value": "#FFFFFF", "$type": "color" },
+          "overlay":    { "$value": "rgba(0,0,0,0.6)", "$type": "color" }
+        },
+        "text": {
+          "default":  { "$value": "#F5F5F7", "$type": "color" },
+          "muted":    { "$value": "#B4B4BB", "$type": "color" },
+          "subtle":   { "$value": "#88888F", "$type": "color" },
+          "disabled": { "$value": "#54545B", "$type": "color" },
+          "inverse":  { "$value": "#141414", "$type": "color" }
+        },
+        "border": {
+          "default": { "$value": "#2A2A2F", "$type": "color" },
+          "strong":  { "$value": "#3A3A40", "$type": "color" }
+        }
+      }
+    }
+  }
+}

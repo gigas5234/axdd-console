@@ -17,13 +17,31 @@ owner: Product Design
 |---|---|---|---|---|
 | `ui_foundation` | MD | ✅ | previous-skill | Step 3의 출력 |
 | `requirement_summary` | MD | ✅ | previous-skill | Step 1의 출력 (필요한 컴포넌트 식별용) |
+| `design_system_profile` | MD | ❌ | previous-skill (design-system-ingest) | DS 출처 요약 |
+| `design_tokens` | JSON | ❌ | previous-skill (design-system-ingest) | 토큰 사전 (`{color.brand.primary}` 등) |
+| `figma_variable_mapping` | MD | ❌ | previous-skill (design-system-ingest) | Figma Variables 매핑 |
+| `tailwind_token_mapping` | MD | ❌ | previous-skill (design-system-ingest) | Tailwind 클래스 매핑 |
+| `component_library_mapping` | MD | ❌ | previous-skill (design-system-ingest) | 고객사 컴포넌트 ↔ AXDD 컴포넌트 |
 
 ## 🔀 분기
 
 | 인풋 상태 | 동작 |
 |---|---|
-| 둘 다 있음 | 정상 실행 |
+| `ui_foundation` + `requirement_summary` 모두 있음 | 정상 실행 |
 | `ui_foundation`만 있음 (Bootstrap 케이스) | 공용 컴포넌트 5종 스펙만 작성 (요구사항 기반 특화 컴포넌트는 생략) |
+| `design-system-ingest` 산출물 5종 중 하나라도 있음 | **반드시 그것을 1순위로 인용**한다. UI Foundation 토큰은 보조. |
+
+## 📌 Design System Usage Rule (HARD)
+
+**`design_system_profile.md`, `design_tokens.json`, `figma_variable_mapping.md`, `tailwind_token_mapping.md`, `component_library_mapping.md` 가 하나라도 입력으로 들어오면 — 컴포넌트 스펙 작성 전에 반드시 이 파일들을 먼저 읽고, 인용한다.**
+
+- 색·여백·라운드는 `design_tokens.json` 의 토큰 이름으로만 표기 (예: `{color.brand.primary}`, `{spacing.4}`)
+- 컴포넌트 이름은 `component_library_mapping.md` 의 매핑된 이름을 우선 사용 (고객사 명칭 ↔ AXDD 표준 명칭 둘 다 표기)
+- Figma 핸드오프 노트에는 `figma_variable_mapping.md` 의 collection/variable 경로(예: `color/brand/primary`) 명시
+- React 핸드오프 노트에는 `tailwind_token_mapping.md` 의 Tailwind 클래스명(예: `bg-brand-primary`) 명시
+- DS 인풋이 전혀 없는 경우에만 UI Foundation 토큰을 직접 사용 (이때도 인라인 hex 금지)
+
+이 룰을 어기면 `axe_check` 의미 검증에서 reject 된다.
 
 ## 📤 Output
 - `component_spec.md` — 공용 컴포넌트 5종 + 프로젝트 특화 컴포넌트 N종 풀 스펙

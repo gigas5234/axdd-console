@@ -64,6 +64,49 @@
     "tags": ["ui", "reference", "design-system", "ui-track"]
   },
   {
+    "id": "design-system-ingest-skill",
+    "name": "Design System Ingest",
+    "category": "reference",
+    "description": "고객사 또는 사내 디자인 시스템 자료(브랜드 가이드 / Figma library / 토큰 표 등)를 받아 AXDD 표준 폼으로 변환한다. design_system_profile / design_tokens.json / tailwind / figma / component mapping 5종 산출.",
+    "input": ["customer_design_system_input", "ui_ux_requirement_summary.md"],
+    "output": [
+      "design_system_profile.md",
+      "design_tokens.json",
+      "tailwind_token_mapping.md",
+      "figma_variable_mapping.md",
+      "component_library_mapping.md"
+    ],
+    "files": {
+      "skill": "skills/reference/design-system-ingest-skill/SKILL.md",
+      "references": [
+        "references/customer-design-system-template.md",
+        "references/token-naming-convention.md",
+        "references/spacing-scale-guide.md",
+        "references/kt-design-system-guide.md"
+      ],
+      "scripts": [],
+      "assets": [
+        "assets/design-token-template.json",
+        "assets/tailwind-token-mapping.md",
+        "assets/figma-variable-mapping.md",
+        "assets/component-library-template.md",
+        "assets/kt-tokens.css",
+        "assets/kt-components.css",
+        "assets/kt-design-tokens.json",
+        "assets/kt-design-token-seed.json",
+        "assets/kt-tailwind-mapping.md",
+        "assets/kt-figma-variable-mapping.md",
+        "assets/kt-component-library-template.md"
+      ],
+      "tests": ["tests/design-system-mapping-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["design-system", "tokens", "tailwind", "figma", "ingest"]
+  },
+  {
     "id": "ui-foundation-build-skill",
     "name": "UI Foundation Build",
     "category": "reference",
