@@ -41,10 +41,10 @@ import {
   buildValidationMd,
   type ResultPayload,
 } from "./result-builders";
-import { buildUxUiHandoff } from "@/skills/fullstep/ux-ui-handoff-fullstep-skill/mock-output";
+import { buildHandoffMerge } from "@/skills/fullstep/handoff-merge-skill/mock-output";
 import { buildKickoffReport } from "@/skills/template/kickoff-report-template-skill/mock-output";
-import { buildDesignSystemReference } from "@/skills/reference/design-system-reference-skill/mock-output";
-import { buildUxProcessAsset } from "@/skills/asset/ux-process-asset-skill/mock-output";
+import { buildUiFoundation } from "@/skills/reference/ui-foundation-build-skill/mock-output";
+import { buildUxProcessDefine } from "@/skills/asset/ux-process-define-skill/mock-output";
 import type { Domain, RunIntent } from "@/skills/_runtime/intent";
 
 const RUNTIME_FILES = [
@@ -449,13 +449,13 @@ function buildExamplesForWorkUnit(workUnit: WorkUnit): Record<string, string> {
 
     let body: string;
     if (workUnit.id === "ux-ui-planning-workunit") {
-      // 핵심 산출물 (마스터 핸드오프)만으로도 도메인 fit 시연 충분
-      body = buildUxUiHandoff(input);
+      // 마스터 핸드오프(common-end의 첫 산출물)만으로도 도메인 fit 시연 충분
+      body = buildHandoffMerge(input);
     } else if (workUnit.id === "kickoff-report-workunit") {
       body = buildKickoffReport(input);
     } else {
-      // 다른 워크유닛: design-system + ux-process 조합
-      body = `# ${ex.domain} 도메인 샘플\n\n## 디자인 시스템 토큰\n${buildDesignSystemReference(input)}\n\n---\n\n## UX 프로세스\n${buildUxProcessAsset(input)}`;
+      // 다른 워크유닛: UI Foundation + UX Process 조합
+      body = `# ${ex.domain} 도메인 샘플\n\n## 디자인 시스템 토큰\n${buildUiFoundation(input)}\n\n---\n\n## UX 프로세스\n${buildUxProcessDefine(input)}`;
     }
 
     const header = `<!-- 도메인: ${ex.domain} · productType: ${ex.productType} · 톤: ${ex.tone} -->

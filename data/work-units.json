@@ -2,17 +2,15 @@
   {
     "id": "kickoff-report-workunit",
     "name": "Kickoff Report Work Unit",
-    "description": "프로젝트 착수 시 필요한 요약·이해관계자·리스크·보고서·검증을 자동 실행한다.",
+    "description": "프로젝트 착수 시 필요한 요약·보고서·검증을 자동 실행한다.",
     "triggerHooks": ["kickoff-report-hook"],
     "skills": [
       "simple-summary-skill",
-      "stakeholder-map-skill",
-      "risk-checklist-skill",
       "kickoff-report-template-skill",
       "output-validation-skill"
     ],
     "input": ["project_brief.md"],
-    "output": ["kickoff_report.md", "stakeholder_map.md", "risk_log.md", "next_step.md"],
+    "output": ["kickoff_report.md", "risk_log.md", "next_step.md"],
     "validationSkill": "output-validation-skill",
     "owner": "Operations",
     "status": "approved"
@@ -20,27 +18,51 @@
   {
     "id": "ux-ui-planning-workunit",
     "name": "UX/UI Planning Work Unit",
-    "description": "요구사항으로부터 UX 구조, IA, UI Foundation, Handoff 문서를 생성한다.",
+    "description": "고객 Requirement에서 UI/UX 요구사항만 추출해 UI 트랙(디자인 시스템→토큰→컴포넌트→화면)과 UX 트랙(프로세스→플로우→IA)을 순차 실행 후 마스터 핸드오프 + Figma 프롬프트까지 생성한다.",
     "triggerHooks": ["ux-ui-planning-hook"],
     "skills": [
-      "simple-summary-skill",
-      "design-system-reference-skill",
-      "ux-process-asset-skill",
-      "ux-ui-handoff-fullstep-skill",
-      "output-validation-skill"
+      "ui-ux-requirement-extract-skill",
+      "ui-element-extract-skill",
+      "ui-foundation-build-skill",
+      "component-spec-write-skill",
+      "sample-screen-design-skill",
+      "ux-process-define-skill",
+      "user-flow-design-skill",
+      "ia-build-skill",
+      "handoff-merge-skill",
+      "figma-prompt-build-skill"
     ],
-    "input": ["raw_requirement.md"],
+    "input": ["customer_requirement.md"],
     "output": [
-      "requirement_summary.md",
+      "ui_ux_requirement_summary.md",
+      "ui_elements.md",
+      "ui_foundation.md",
+      "component_spec.md",
+      "sample_screens.md",
+      "ux_process_plan.md",
       "user_flow.md",
       "ia.md",
-      "ui_foundation.md",
       "handoff.md",
-      "review_checklist.md"
+      "figma_prompt.md"
     ],
-    "validationSkill": "output-validation-skill",
+    "tracks": {
+      "common-start": ["ui-ux-requirement-extract-skill"],
+      "ui-track": [
+        "ui-element-extract-skill",
+        "ui-foundation-build-skill",
+        "component-spec-write-skill",
+        "sample-screen-design-skill"
+      ],
+      "ux-track": [
+        "ux-process-define-skill",
+        "user-flow-design-skill",
+        "ia-build-skill"
+      ],
+      "common-end": ["handoff-merge-skill", "figma-prompt-build-skill"]
+    },
+    "humanGate": true,
     "owner": "Product Design",
-    "status": "needs-review"
+    "status": "ready-for-test"
   },
   {
     "id": "cicd-setup-workunit",

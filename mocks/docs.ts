@@ -66,7 +66,52 @@ extractIntent(prompt)   ← skills/_runtime/intent.ts
 
 이 3단계 덕분에 사용자가 명시적 키워드("UX 기획") 없이도 자연스러운 자연어로 라우팅됨.
 
-## 4. Domain Profile (5종 + generic)
+## 4. UX/UI Planning — 10단계 Atomic Skill (NEW · Phase 5)
+
+UX/UI Planning Work Unit이 **10개 atomic skill**로 분해됐다. 각 스킬은 SKILL.md만 보면 단독으로 이해 가능한 작은 단위:
+
+\`\`\`
+common-start
+└─ ① ui-ux-requirement-extract-skill          → ui_ux_requirement_summary.md
+
+ui-track (UI 디자이너 시점)
+├─ ② ui-element-extract-skill                 → ui_elements.md
+├─ ③ ui-foundation-build-skill                → ui_foundation.md
+├─ ④ component-spec-write-skill               → component_spec.md
+└─ ⑤ sample-screen-design-skill               → sample_screens.md
+
+ux-track (UX 디자이너 시점)
+├─ ⑥ ux-process-define-skill                  → ux_process_plan.md
+├─ ⑦ user-flow-design-skill                   → user_flow.md
+└─ ⑧ ia-build-skill                           → ia.md
+
+common-end
+├─ ⑨ handoff-merge-skill                      → handoff.md (UI + UX 통합 마스터)
+└─ ⑩ figma-prompt-build-skill                 → figma_prompt.md
+\`\`\`
+
+실행은 **순차** (common-start → UI track 4단계 → UX track 3단계 → common-end 2단계).
+
+### Human Gate (Approve / Reject)
+
+\`work-units.json\`에 \`humanGate: true\`가 설정된 워크유닛은 각 스킬 완료 직후 **사용자 승인을 기다린다**.
+
+- **Approve** → 다음 스킬로 진행
+- **Reject** → 워크유닛 중단 + Governance > Review Queue로 자동 등록 (localStorage 기반)
+
+Sandbox UI에서 \`HumanGatePanel\`이 Approve/Reject 버튼을 노출. Reject된 런은 Governance 페이지에서 rose 배경 + "Sandbox Reject" 배지로 표시.
+
+### 트랙 시각화
+
+Work Unit Flow의 각 노드에 **좌측 보더 색**으로 트랙 구분:
+- slate = common-start
+- sky = ui-track
+- violet = ux-track
+- emerald = common-end
+
+상단에 \`TrackLegend\` 컴포넌트 — 4개 트랙 chip + 트랙별 done/total 카운트.
+
+## 5. Domain Profile (5종 + generic)
 
 \`skills/_runtime/domain-profiles.ts\`에 5개 도메인 프로필 정의:
 
@@ -88,7 +133,7 @@ extractIntent(prompt)   ← skills/_runtime/intent.ts
 - A11y 12항목
 - Figma 프레임 11종
 
-## 5. Validation — 4-state + 의미 검증
+## 6. Validation — 4-state + 의미 검증
 
 \`\`\`
 형식 검증 (정적 룰)
@@ -110,7 +155,7 @@ extractIntent(prompt)   ← skills/_runtime/intent.ts
 
 이전엔 형식만 검증해서 헬스케어 요청에 콘솔 컴포넌트가 들어가도 통과됐음. 지금은 의미 검증이 잡음.
 
-## 6. Bundle — Anthropic Skills 표준 구조
+## 7. Bundle — Anthropic Skills 표준 구조
 
 **Work Unit을 단일 Claude Code Skill로 패키징한다.**
 
@@ -150,7 +195,7 @@ mv ux-ui-planning-workunit ~/.claude/skills/
 | **결과 zip** (\`결과만\` 버튼) | 산출물 공유 (디자이너·PM) | output / validation / intent / figma-prompt / README / manifest |
 | **Bundle zip** (\`Bundle\` 버튼) | Claude Code 재실행 | SKILL.md + CATALOG.md + 7개 폴더 (Anthropic Skills 표준) |
 
-## 7. LLM 통합 경로
+## 8. LLM 통합 경로
 
 ANTHROPIC_API_KEY 환경변수 설정만으로 자동 전환:
 
@@ -164,7 +209,7 @@ ANTHROPIC_API_KEY 환경변수 설정만으로 자동 전환:
 \`skills/_runtime/llm-client.ts\` — Anthropic API 호출 (fetch only, SDK 의존성 0).
 \`skills/_runtime/helpers.ts\` — \`withLlmOrMock()\` 표준 헬퍼.
 
-## 8. 파일 책임 매트릭스
+## 9. 파일 책임 매트릭스
 
 | 파일 | 책임 |
 |---|---|
@@ -183,7 +228,7 @@ ANTHROPIC_API_KEY 환경변수 설정만으로 자동 전환:
 | \`lib/result-export.ts\` | 클라이언트 결과 zip |
 | \`lib/workunit-bundle.ts\` | 서버 Bundle zip (Anthropic Skills 표준) |
 
-## 9. 디버그 / 검증
+## 10. 디버그 / 검증
 
 \`\`\`
 # Hook 라우팅 추적

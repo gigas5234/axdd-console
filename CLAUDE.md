@@ -1392,3 +1392,105 @@ extractIntent(prompt)   ← LLM (Anthropic) 또는 휴리스틱 fallback
 7. **Figma MCP** — [lib/figma/mcp-adapter.ts](lib/figma/mcp-adapter.ts)의 `_transport`에 실제 MCP 클라이언트 wiring
 
 각 단계는 독립적으로 도입 가능. 한 번에 다 안 해도 됨.
+
+# ─────────────────────────────────────────────────────────
+# §29+ Phase 5: Atomic Skill 재구성 (회의 피드백 반영)
+# 이 섹션은 가람씨 미팅 피드백 이후 추가된 구조를 반영한다.
+# 이전 §1~28은 atomic 재구성 이전의 5-skill 풀스텝 구조를 설명한다.
+# ─────────────────────────────────────────────────────────
+
+## 29. Atomic Skill Restructure — UX/UI Planning 10단계
+
+가람씨 미팅에서 나온 핵심 피드백:
+1. 한 fullstep 스킬에 모든 게 들어가면 너무 큼 — **작은 atomic 단위**로 쪼개야 함
+2. UI 트랙과 UX 트랙은 분리되어야 — 디자이너가 자기 트랙만 봐도 이해 가능
+3. 각 단계 사이에 **Human Gate (Approve/Reject)** — LLM 결과를 무조건 다음에 넘기지 말 것
+4. 각 SKILL.md는 자체로 짧고 독립적이어야 — 받는 사람이 SKILL.md만 보고도 이해 가능
+
+### 29.1 10개 Atomic Skill (UX/UI Planning Work Unit)
+
+기존 `ux-ui-handoff-fullstep-skill` + `design-system-reference-skill` + `ux-process-asset-skill` 3개를
+다음 10개 atomic skill로 분해:
+
+| # | 트랙 | Skill ID | 카테고리 | 출력 |
+|---|---|---|---|---|
+| 1 | common-start | `ui-ux-requirement-extract-skill` | simple | `ui_ux_requirement_summary.md` |
+| 2 | ui-track | `ui-element-extract-skill` | reference | `ui_elements.md` |
+| 3 | ui-track | `ui-foundation-build-skill` | reference | `ui_foundation.md` |
+| 4 | ui-track | `component-spec-write-skill` | asset | `component_spec.md` |
+| 5 | ui-track | `sample-screen-design-skill` | asset | `sample_screens.md` |
+| 6 | ux-track | `ux-process-define-skill` | asset | `ux_process_plan.md` |
+| 7 | ux-track | `user-flow-design-skill` | template | `user_flow.md` |
+| 8 | ux-track | `ia-build-skill` | template | `ia.md` |
+| 9 | common-end | `handoff-merge-skill` | fullstep | `handoff.md` |
+| 10 | common-end | `figma-prompt-build-skill` | template | `figma_prompt.md` |
+
+**실행 순서**: 사용자가 "순차 실행"으로 결정 → common-start → ui-track 4단계 → ux-track 3단계 → common-end 2단계.
+
+### 29.2 Human Gate
+
+`work-units.json`의 `humanGate: true` 플래그가 있으면 각 스킬 완료 직후 사용자 결정을 기다린다.
+
+- **Approve** → 다음 스킬로 진행
+- **Reject** → 워크유닛 중단 + Governance Review Queue로 자동 등록
+
+구현:
+- [mocks/execution.ts](mocks/execution.ts) — `simulateExecution(skillIds, onUpdate, { awaitApproval })`
+- [mocks/halted-runs.ts](mocks/halted-runs.ts) — localStorage 기반 Halted Run 큐
+- [components/sandbox/prompt-runner.tsx](components/sandbox/prompt-runner.tsx) — `HumanGatePanel` / `HaltedNotice`
+- [app/governance/page.tsx](app/governance/page.tsx) — Halted run을 Review Queue에 머지 + Sandbox Reject 배지
+
+### 29.3 트랙 시각화
+
+- `WorkUnitFlow` 각 노드에 좌측 보더 색으로 트랙 표시 (slate / sky / violet / emerald)
+- Sandbox 상단에 `TrackLegend` — 4개 트랙 chip + done/total 카운트 + 현재 트랙 강조
+
+### 29.4 데이터 구조 확장
+
+```ts
+// lib/types.ts
+export interface WorkUnit {
+  // ...
+  tracks?: {
+    "common-start"?: string[];
+    "ui-track"?: string[];
+    "ux-track"?: string[];
+    "common-end"?: string[];
+  };
+  humanGate?: boolean;
+}
+```
+
+### 29.5 Intent 도메인 검출 개선
+
+기존 `DOMAIN_PATTERNS`를 순서대로 첫 매칭 반환 → **score-based 검출**로 변경.
+
+이유: "패션 이커머스 + 결제" 같은 프롬프트에서 `/결제/`(핀테크 패턴)가 먼저 매칭돼 이커머스가
+핀테크로 오분류되던 문제. 명시적 도메인 키워드(헬스케어/핀테크/이커머스/어드민/saas/...)가 있으면
+바로 반환하고, 없으면 모든 패턴 매칭 횟수로 점수 비교.
+
+→ [skills/_runtime/intent.ts](skills/_runtime/intent.ts)의 `detectDomain`.
+
+### 29.6 E2E 검증 (4개 도메인)
+
+Phase 5 완료 시점 검증:
+
+| 입력 | 분류 결과 | hits | leak |
+|---|---|---|---|
+| 헬스케어 SaaS 환자 대시보드 | 헬스케어 + saas | 119 | 1 |
+| 핀테크 모바일 KYC + 송금 + 자산 | 핀테크 + mobile-app | 139 | 3 |
+| 패션 이커머스 모바일 + 결제 + 리뷰 | 이커머스 + mobile-app | 151 | 0 |
+| 엔터프라이즈 어드민 + 데이터 테이블 | 어드민 + admin | 55 | 0 |
+
+기준: hits ≥ 5 AND leak ≤ 3 → **4/4 통과**.
+
+### 29.7 마이그레이션 노트
+
+기존에 다음 3개 스킬을 import하던 코드는 모두 atomic으로 교체됨:
+
+- `buildUxUiHandoff` → `buildHandoffMerge`
+- `buildDesignSystemReference` → `buildUiFoundation`
+- `buildUxProcessAsset` → `buildUxProcessDefine`
+
+영향 파일: [lib/workunit-bundle.ts](lib/workunit-bundle.ts), [mocks/sample-outputs.ts](mocks/sample-outputs.ts).
+

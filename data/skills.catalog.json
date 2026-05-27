@@ -16,28 +16,222 @@
     "owner": "Product Design",
     "version": "0.1.0",
     "status": "verified",
-    "relatedWorkUnits": ["kickoff-report-workunit", "ux-ui-planning-workunit"],
+    "relatedWorkUnits": ["kickoff-report-workunit"],
     "tags": ["summary", "markdown"]
   },
   {
-    "id": "design-system-reference-skill",
-    "name": "Design System Reference",
-    "category": "reference",
-    "description": "고객사 디자인 시스템 MD를 참고해 UI Foundation 문서를 만든다.",
-    "input": ["design-system-reference.md", "requirements.md"],
-    "output": ["ui_foundation.md"],
+    "id": "ui-ux-requirement-extract-skill",
+    "name": "UI/UX Requirement Extract",
+    "category": "simple",
+    "description": "고객 Requirement MD에서 UI/UX 관련 요구사항만 추출해 1페이지 요약을 만든다.",
+    "input": ["customer_requirement.md"],
+    "output": ["ui_ux_requirement_summary.md"],
     "files": {
-      "skill": "skills/reference/design-system-reference-skill/SKILL.md",
-      "references": ["references/design-system.md", "references/brand-tokens.json"],
+      "skill": "skills/simple/ui-ux-requirement-extract-skill/SKILL.md",
+      "references": ["references/ui-ux-keyword-list.md"],
       "scripts": [],
       "assets": [],
-      "tests": ["tests/ui-foundation-checklist.md"]
+      "tests": ["tests/ui-ux-filter-check.md"]
     },
     "owner": "Product Design",
-    "version": "0.2.0",
-    "status": "verified",
+    "version": "1.0.0",
+    "status": "ready-for-test",
     "relatedWorkUnits": ["ux-ui-planning-workunit"],
-    "tags": ["design-system", "ui-foundation"]
+    "tags": ["ux", "ui", "requirement", "common-start"]
+  },
+  {
+    "id": "ui-element-extract-skill",
+    "name": "UI Element Extract",
+    "category": "reference",
+    "description": "디자인 시스템 레퍼런스 + UI/UX 요구사항에서 이 프로젝트에 필요한 UI 요소(컴포넌트 후보)를 추출한다.",
+    "input": ["ui_ux_requirement_summary.md", "design-system-reference.md"],
+    "output": ["ui_elements.md"],
+    "files": {
+      "skill": "skills/reference/ui-element-extract-skill/SKILL.md",
+      "references": [
+        "references/axdd-design-system.md",
+        "references/customer-design-system-template.md",
+        "references/element-categorization.md"
+      ],
+      "scripts": [],
+      "assets": [],
+      "tests": ["tests/element-coverage-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ui", "reference", "design-system", "ui-track"]
+  },
+  {
+    "id": "ui-foundation-build-skill",
+    "name": "UI Foundation Build",
+    "category": "reference",
+    "description": "UI 요소 + 도메인 톤을 받아 디자인 토큰(color/typography/spacing/radius/shadow/motion) 풀세트를 정의한다.",
+    "input": ["ui_elements.md"],
+    "output": ["ui_foundation.md"],
+    "files": {
+      "skill": "skills/reference/ui-foundation-build-skill/SKILL.md",
+      "references": [
+        "references/token-naming-convention.md",
+        "references/spacing-scale-guide.md"
+      ],
+      "scripts": [],
+      "assets": [],
+      "tests": ["tests/token-completeness-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ui", "tokens", "foundation", "ui-track"]
+  },
+  {
+    "id": "component-spec-write-skill",
+    "name": "Component Spec Write",
+    "category": "asset",
+    "description": "UI Foundation 토큰을 기반으로 컴포넌트 스펙(Variants/States/Props/Anatomy/Token mapping)을 작성한다.",
+    "input": ["ui_foundation.md", "ui_ux_requirement_summary.md"],
+    "output": ["component_spec.md"],
+    "files": {
+      "skill": "skills/asset/component-spec-write-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/component-spec-template.md"],
+      "tests": ["tests/spec-fields-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ui", "component", "spec", "ui-track"]
+  },
+  {
+    "id": "sample-screen-design-skill",
+    "name": "Sample Screen Design",
+    "category": "asset",
+    "description": "컴포넌트 스펙을 바탕으로 도메인 핵심 화면 3종을 ASCII 와이어프레임 + 토큰 매핑으로 설계한다.",
+    "input": ["component_spec.md", "ui_foundation.md"],
+    "output": ["sample_screens.md"],
+    "files": {
+      "skill": "skills/asset/sample-screen-design-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/wireframe-template.md"],
+      "tests": ["tests/screen-count-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ui", "wireframe", "screen", "ui-track"]
+  },
+  {
+    "id": "ux-process-define-skill",
+    "name": "UX Process Define",
+    "category": "asset",
+    "description": "UX 어셋 풀세트와 고객 요구사항을 받아 Double Diamond 기반 도메인 특화 UX 프로세스 플랜을 정의한다.",
+    "input": ["ui_ux_requirement_summary.md"],
+    "output": ["ux_process_plan.md"],
+    "files": {
+      "skill": "skills/asset/ux-process-define-skill/SKILL.md",
+      "references": ["references/double-diamond-method.md"],
+      "scripts": [],
+      "assets": ["assets/ux-process-asset-pack.md"],
+      "tests": ["tests/persona-completeness-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ux", "process", "persona", "ux-track"]
+  },
+  {
+    "id": "user-flow-design-skill",
+    "name": "User Flow Design",
+    "category": "template",
+    "description": "UX 프로세스에서 정의된 페르소나·시나리오를 기반으로 도메인 핵심 사용자 플로우 2~3개를 state-based로 작성한다.",
+    "input": ["ux_process_plan.md"],
+    "output": ["user_flow.md"],
+    "files": {
+      "skill": "skills/template/user-flow-design-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/user-flow-template.md"],
+      "tests": ["tests/flow-state-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ux", "flow", "ux-track"]
+  },
+  {
+    "id": "ia-build-skill",
+    "name": "IA Build",
+    "category": "template",
+    "description": "User Flow에서 발견된 화면을 Information Architecture(라우트 트리 + 화면 계층)로 구조화한다.",
+    "input": ["user_flow.md"],
+    "output": ["ia.md"],
+    "files": {
+      "skill": "skills/template/ia-build-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/ia-tree-template.md"],
+      "tests": ["tests/ia-orphan-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ux", "ia", "ux-track"]
+  },
+  {
+    "id": "handoff-merge-skill",
+    "name": "Handoff Merge",
+    "category": "fullstep",
+    "description": "UI 트랙 + UX 트랙 산출물을 합쳐 프론트 개발자가 즉시 구현 가능한 마스터 핸드오프 문서를 만든다.",
+    "input": [
+      "ui_foundation.md",
+      "component_spec.md",
+      "sample_screens.md",
+      "ux_process_plan.md",
+      "user_flow.md",
+      "ia.md"
+    ],
+    "output": ["handoff.md"],
+    "files": {
+      "skill": "skills/fullstep/handoff-merge-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/handoff-doc-template.md"],
+      "tests": ["tests/handoff-section-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["ux", "ui", "handoff", "common-end"]
+  },
+  {
+    "id": "figma-prompt-build-skill",
+    "name": "Figma Prompt Build",
+    "category": "template",
+    "description": "마스터 핸드오프 문서를 Figma AI / Make Designs / First Draft에 그대로 붙여 넣을 수 있는 프롬프트로 변환한다.",
+    "input": ["handoff.md"],
+    "output": ["figma_prompt.md"],
+    "files": {
+      "skill": "skills/template/figma-prompt-build-skill/SKILL.md",
+      "references": [],
+      "scripts": [],
+      "assets": ["assets/figma-frame-recipes.md"],
+      "tests": ["tests/figma-frame-count-check.md"]
+    },
+    "owner": "Product Design",
+    "version": "1.0.0",
+    "status": "ready-for-test",
+    "relatedWorkUnits": ["ux-ui-planning-workunit"],
+    "tags": ["figma", "prompt", "common-end"]
   },
   {
     "id": "kickoff-report-template-skill",
@@ -78,50 +272,6 @@
     "status": "tested",
     "relatedWorkUnits": ["cicd-setup-workunit"],
     "tags": ["script", "html", "wbs"]
-  },
-  {
-    "id": "ux-process-asset-skill",
-    "name": "UX Process Asset",
-    "category": "asset",
-    "description": "UX 작업 단위에 필요한 프로세스/룰/체크리스트/예시 풀셋을 적용한다.",
-    "input": ["raw_requirement.md"],
-    "output": ["ux_process_plan.md"],
-    "files": {
-      "skill": "skills/asset/ux-process-asset-skill/SKILL.md",
-      "references": ["references/ux-process-rule.md"],
-      "scripts": [],
-      "assets": [
-        "assets/ux-checklist.md",
-        "assets/ux-examples.md",
-        "assets/ux-summary.md"
-      ],
-      "tests": ["tests/process-coverage-check.md"]
-    },
-    "owner": "Product Design",
-    "version": "0.2.0",
-    "status": "ready-for-test",
-    "relatedWorkUnits": ["ux-ui-planning-workunit"],
-    "tags": ["ux", "process", "asset"]
-  },
-  {
-    "id": "ux-ui-handoff-fullstep-skill",
-    "name": "UX/UI Handoff Full-step",
-    "category": "fullstep",
-    "description": "레퍼런스 + 스크립트 + 어셋을 통합해 UX/UI 핸드오프 산출물을 만든다.",
-    "input": ["requirement_summary.md", "design-system-reference.md"],
-    "output": ["handoff.md", "ui_foundation.md", "ia.md"],
-    "files": {
-      "skill": "skills/fullstep/ux-ui-handoff-fullstep-skill/SKILL.md",
-      "references": ["references/design-system.md"],
-      "scripts": ["scripts/extract_components.py"],
-      "assets": ["assets/handoff-template.md", "assets/component-spec-template.md"],
-      "tests": ["tests/handoff-completeness-check.md"]
-    },
-    "owner": "Product Design",
-    "version": "0.4.0",
-    "status": "needs-review",
-    "relatedWorkUnits": ["ux-ui-planning-workunit"],
-    "tags": ["ux", "ui", "handoff", "fullstep"]
   },
   {
     "id": "asset-metadata-search-skill",

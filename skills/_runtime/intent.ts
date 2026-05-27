@@ -183,14 +183,59 @@ function detectProductType(p: string): ProductType {
   return "unknown";
 }
 
+/**
+ * 도메인 검출 — **score 기반**.
+ *
+ * 이전 버전은 DOMAIN_PATTERNS 순서대로 첫 번째 매칭을 반환했으나,
+ * "패션 이커머스 + 결제" 같은 프롬프트에서 결제(핀테크) 패턴이 먼저
+ * 매칭돼 이커머스가 핀테크로 오분류되는 문제가 있었다.
+ *
+ * 새 로직:
+ *   1. 모든 도메인의 모든 패턴 매칭 횟수 카운트
+ *   2. 최고 점수 도메인 반환
+ *   3. 동점이면 명시적 도메인 키워드(헬스케어/핀테크/이커머스/어드민/saas) 우선
+ */
 function detectDomain(p: string): { domain: Domain; matched: string | null } {
-  for (const { domain, patterns } of DOMAIN_PATTERNS) {
-    for (const re of patterns) {
-      const m = p.match(re);
-      if (m) return { domain, matched: m[0] };
+  // 명시적 도메인 키워드 — 동점 시 우선
+  const EXPLICIT_DOMAIN: Record<string, Domain> = {
+    헬스케어: "헬스케어",
+    핀테크: "핀테크",
+    이커머스: "이커머스",
+    커머스: "이커머스",
+    어드민: "어드민",
+    admin: "어드민",
+    saas: "saas",
+    교육: "교육",
+    엔터: "엔터테인먼트",
+  };
+  for (const [kw, dom] of Object.entries(EXPLICIT_DOMAIN)) {
+    if (new RegExp(kw, "i").test(p)) {
+      return { domain: dom, matched: kw };
     }
   }
-  return { domain: "unknown", matched: null };
+
+  // 명시적 키워드가 없을 때만 score-based 검출
+  let bestDomain: Domain = "unknown";
+  let bestScore = 0;
+  let bestMatched: string | null = null;
+
+  for (const { domain, patterns } of DOMAIN_PATTERNS) {
+    let score = 0;
+    let firstMatch: string | null = null;
+    for (const re of patterns) {
+      const matches = p.match(new RegExp(re.source, re.flags + "g"));
+      if (matches) {
+        score += matches.length;
+        if (!firstMatch) firstMatch = matches[0];
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestDomain = domain;
+      bestMatched = firstMatch;
+    }
+  }
+  return { domain: bestDomain, matched: bestMatched };
 }
 
 function detectTone(p: string): Tone {

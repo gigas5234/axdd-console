@@ -1,35 +1,53 @@
 /**
  * Skill Registry — id → SkillRunner 매핑.
  *
- * 새 스킬을 추가할 때:
- *   1. skills/<category>/<skill-id>/ 폴더 만들기
- *   2. SKILL.md / prompt.ts / runner.ts 작성
- *   3. 이 파일에 import + registry 등록
- *
- * `run(skillId, input)`이 하나의 진입점이다.
+ * Phase 5 (atomic skill 재구성) 완료 상태:
+ *   - UX/UI 워크유닛: 10개 atomic skill로 분해됨
+ *   - 다른 워크유닛: 기존 스킬 유지 (simple-summary, output-validation 등 공유)
  */
 
 import type { SkillRunner, SkillRunInput, SkillRunOutput } from "./types";
 
-// 8개 카테고리 × 최소 1개씩
+// 공통 스킬
 import simpleSummary from "../simple/simple-summary-skill/runner";
-import designSystemReference from "../reference/design-system-reference-skill/runner";
-import kickoffReportTemplate from "../template/kickoff-report-template-skill/runner";
-import htmlMilestoneGenerator from "../script/html-milestone-generator-skill/runner";
-import uxProcessAsset from "../asset/ux-process-asset-skill/runner";
-import uxUiHandoffFullstep from "../fullstep/ux-ui-handoff-fullstep-skill/runner";
-import assetMetadataSearch from "../metadata/asset-metadata-search-skill/runner";
 import outputValidation from "../test/output-validation-skill/runner";
 
+// UX/UI Planning Workunit — 10개 atomic skill
+import uiUxRequirementExtract from "../simple/ui-ux-requirement-extract-skill/runner";
+import uiElementExtract from "../reference/ui-element-extract-skill/runner";
+import uiFoundationBuild from "../reference/ui-foundation-build-skill/runner";
+import componentSpecWrite from "../asset/component-spec-write-skill/runner";
+import sampleScreenDesign from "../asset/sample-screen-design-skill/runner";
+import uxProcessDefine from "../asset/ux-process-define-skill/runner";
+import userFlowDesign from "../template/user-flow-design-skill/runner";
+import iaBuild from "../template/ia-build-skill/runner";
+import handoffMerge from "../fullstep/handoff-merge-skill/runner";
+import figmaPromptBuild from "../template/figma-prompt-build-skill/runner";
+
+// 다른 워크유닛 (kickoff / cicd)
+import kickoffReportTemplate from "../template/kickoff-report-template-skill/runner";
+import htmlMilestoneGenerator from "../script/html-milestone-generator-skill/runner";
+import assetMetadataSearch from "../metadata/asset-metadata-search-skill/runner";
+
 const RUNNERS: SkillRunner[] = [
+  // 공통
   simpleSummary,
-  designSystemReference,
+  outputValidation,
+  // UX/UI 10 atomic
+  uiUxRequirementExtract,
+  uiElementExtract,
+  uiFoundationBuild,
+  componentSpecWrite,
+  sampleScreenDesign,
+  uxProcessDefine,
+  userFlowDesign,
+  iaBuild,
+  handoffMerge,
+  figmaPromptBuild,
+  // 기타
   kickoffReportTemplate,
   htmlMilestoneGenerator,
-  uxProcessAsset,
-  uxUiHandoffFullstep,
   assetMetadataSearch,
-  outputValidation,
 ];
 
 const REGISTRY: Record<string, SkillRunner> = Object.fromEntries(

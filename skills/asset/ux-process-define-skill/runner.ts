@@ -1,16 +1,13 @@
 import type { SkillRunner } from "../../_runtime/types";
 import { withLlmOrMock } from "../../_runtime/helpers";
 import { prompt } from "./prompt";
-import { buildUxProcessAsset } from "./mock-output";
+import { buildUxProcessDefine } from "./mock-output";
 
 const runner: SkillRunner = {
-  id: "ux-process-asset-skill",
+  id: "ux-process-define-skill",
   category: "asset",
   async run(input) {
-    return withLlmOrMock(prompt, input, {
-      // intent.domain → 도메인별 페르소나/플로우
-      buildMock: buildUxProcessAsset,
-    });
+    return withLlmOrMock(prompt, input, { buildMock: buildUxProcessDefine });
   },
 };
 

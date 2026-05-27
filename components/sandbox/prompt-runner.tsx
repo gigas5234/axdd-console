@@ -14,6 +14,10 @@ import {
   Clock,
   RotateCw,
   Package,
+  ThumbsUp,
+  ThumbsDown,
+  ShieldAlert,
+  Layers,
 } from "lucide-react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,12 +54,24 @@ import {
   simulateExecution,
   runMockValidation,
   expectedTotalRangeMs,
+  HumanGateRejectedError,
+  buildHaltedRun,
+  pushHaltedRun,
   type MockStep,
   type SkillRunState,
   type SandboxPreset,
+  type HumanGateDecision,
 } from "@/mocks";
 
-type Phase = "idle" | "running" | "done";
+type Phase = "idle" | "running" | "done" | "halted";
+
+/** 현재 사용자 승인을 기다리는 Human Gate 상태 */
+interface PendingGate {
+  skillId: string;
+  completed: number;
+  total: number;
+  resolve: (decision: HumanGateDecision) => void;
+}
 
 export function PromptRunner() {
   const [prompt, setPrompt] = useState("");
@@ -67,6 +83,14 @@ export function PromptRunner() {
   const [currentSkillId, setCurrentSkillId] = useState<string | undefined>();
   const [activePreset, setActivePreset] = useState<string | undefined>();
   const [expanded, setExpanded] = useState(false);
+
+  // Human Gate 상태 — humanGate=true 워크유닛에서만 활성
+  const [pendingGate, setPendingGate] = useState<PendingGate | null>(null);
+  const [haltedAt, setHaltedAt] = useState<{
+    skillId: string;
+    completed: number;
+    total: number;
+  } | null>(null);
 
   // LLM/실 API 응답 (있으면 우선 표시)
   const [liveOutput, setLiveOutput] = useState<string | null>(null);
@@ -129,6 +153,15 @@ export function PromptRunner() {
     setLiveOutput(null);
     setLiveMode(null);
     setExpanded(false);
+    setPendingGate(null);
+    setHaltedAt(null);
+  }
+
+  /** Approve/Reject 버튼 클릭 핸들러 — pendingGate가 있을 때만 의미 있음 */
+  function decideGate(decision: HumanGateDecision) {
+    if (!pendingGate) return;
+    pendingGate.resolve(decision);
+    setPendingGate(null);
   }
 
   /**
@@ -167,6 +200,8 @@ export function PromptRunner() {
     setPhase("running");
     setLiveOutput(null);
     setLiveMode(null);
+    setPendingGate(null);
+    setHaltedAt(null);
 
     // ⚠️ LLM 교체 시: 아래 Promise.all 안의 simulateExecution 호출 제거,
     //    fetch를 streaming으로 받아 setSteps/setSkillStates를 직접 갱신.
@@ -187,21 +222,67 @@ export function PromptRunner() {
       })
       .catch(() => null);
 
-    const [, apiResult] = await Promise.all([
-      simulateExecution(targetWorkUnit.skills, (state) => {
-        setSteps(state.steps);
-        setSkillStates(state.skillStates);
-        setCurrentSkillId(state.currentSkillId);
-      }),
-      fetchPromise,
-    ]);
+    // Human Gate 활성 워크유닛이면 awaitApproval 콜백 등록
+    const completedSkills: string[] = [];
+    const awaitApproval = targetWorkUnit.humanGate
+      ? async (
+          skillId: string,
+          completed: number,
+          total: number,
+        ): Promise<HumanGateDecision> => {
+          completedSkills.push(skillId);
+          return new Promise<HumanGateDecision>((resolve) => {
+            setPendingGate({ skillId, completed, total, resolve });
+          });
+        }
+      : undefined;
 
-    if (apiResult) {
-      setLiveMode(apiResult.mode);
-      setLiveOutput(apiResult.finalMarkdown || null);
+    try {
+      const [, apiResult] = await Promise.all([
+        simulateExecution(
+          targetWorkUnit.skills,
+          (state) => {
+            setSteps(state.steps);
+            setSkillStates(state.skillStates);
+            setCurrentSkillId(state.currentSkillId);
+          },
+          { awaitApproval },
+        ),
+        fetchPromise,
+      ]);
+
+      if (apiResult) {
+        setLiveMode(apiResult.mode);
+        setLiveOutput(apiResult.finalMarkdown || null);
+      }
+      setCurrentSkillId(undefined);
+      setPhase("done");
+    } catch (err) {
+      // Human Gate Reject → Governance 큐로 등록
+      if (err instanceof HumanGateRejectedError) {
+        const halted = buildHaltedRun({
+          workUnitId: targetWorkUnit.id,
+          prompt: promptToUse,
+          matchedHook: currentMatch.hookId ?? "unknown",
+          completedSkills,
+          rejectedAtSkillId: err.skillId,
+          totalSkills: targetWorkUnit.skills.length,
+        });
+        pushHaltedRun(halted);
+        setHaltedAt({
+          skillId: err.skillId,
+          completed: err.completedCount,
+          total: targetWorkUnit.skills.length,
+        });
+        setCurrentSkillId(undefined);
+        setPhase("halted");
+      } else {
+        // 다른 예외 — 콘솔에만 남기고 done 처리
+        console.error("[Sandbox] execution error:", err);
+        setCurrentSkillId(undefined);
+        setPhase("done");
+      }
     }
-    setCurrentSkillId(undefined);
-    setPhase("done");
   }
 
   // 출력 — 실제 API 응답이 있으면 그걸, 아니면 워크유닛별 mock 폴백
@@ -301,6 +382,7 @@ export function PromptRunner() {
   const isIdle = phase === "idle";
   const isRunning = phase === "running";
   const isDone = phase === "done";
+  const isHalted = phase === "halted";
 
   // 진행률 계산 (시각화용)
   const progressCount = Object.values(skillStates).filter(
@@ -478,28 +560,68 @@ export function PromptRunner() {
             <NoMatchHint prompt={prompt} />
           )}
 
-          {(isRunning || isDone) && workUnit && (
+          {(isRunning || isDone || isHalted) && workUnit && (
             <Card>
               <CardHeader className="flex items-start justify-between flex-row">
                 <div>
                   <CardTitle>{workUnit.name}</CardTitle>
                   <p className="text-xs text-ink-500 mt-1">
                     {isRunning
-                      ? "스킬이 차례로 실행됩니다 · cyan 글로우 = 현재 실행 중"
-                      : "모든 스킬 실행 완료"}
+                      ? workUnit.humanGate
+                        ? "스킬이 차례로 실행됩니다 · 각 단계 완료 후 Approve 필요"
+                        : "스킬이 차례로 실행됩니다 · cyan 글로우 = 현재 실행 중"
+                      : isHalted
+                        ? "Human Gate에서 반려됨 · Governance 큐로 이동"
+                        : "모든 스킬 실행 완료"}
                   </p>
                 </div>
                 <Badge status={workUnit.status} />
               </CardHeader>
               <CardBody className="pt-2 space-y-4">
+                {/* 트랙 레전드 — UI/UX 워크유닛에서만 표시 */}
+                {workUnit.tracks && (
+                  <TrackLegend workUnit={workUnit} skillStates={skillStates} />
+                )}
+
                 <WorkUnitFlow
                   workUnit={workUnit}
                   skillsById={skillsById}
                   skillStates={skillStates}
                 />
+
+                {/* Human Gate — 사용자 결정 대기 중 */}
+                {pendingGate && (
+                  <HumanGatePanel
+                    skillId={pendingGate.skillId}
+                    completed={pendingGate.completed}
+                    total={pendingGate.total}
+                    skillName={
+                      skillsById[pendingGate.skillId]?.name ??
+                      pendingGate.skillId
+                    }
+                    onApprove={() => decideGate("approve")}
+                    onReject={() => decideGate("reject")}
+                  />
+                )}
+
+                {/* Halted notice */}
+                {isHalted && haltedAt && (
+                  <HaltedNotice
+                    skillName={
+                      skillsById[haltedAt.skillId]?.name ?? haltedAt.skillId
+                    }
+                    completed={haltedAt.completed}
+                    total={haltedAt.total}
+                  />
+                )}
+
                 <div>
                   <div className="label-eyebrow mb-2 flex items-center gap-2">
-                    {isRunning ? "실행 진행" : "실행 완료"}
+                    {isRunning
+                      ? "실행 진행"
+                      : isHalted
+                        ? "실행 중단"
+                        : "실행 완료"}
                     <ArrowRight className="h-3 w-3 text-ink-400" />
                     <span className="text-ink-400 font-mono">
                       {progressCount}/{progressTotal}
@@ -684,6 +806,184 @@ function IdleEmptyState({ hasMatch }: { hasMatch: boolean }) {
           ? "Hook이 매칭됐어요. 좌측의 [실행] 버튼을 누르면 스킬이 차례로 실행되며 진행 상황이 표시됩니다."
           : "위 프리셋을 선택하거나 프롬프트를 입력해 시작하세요. Hook이 매칭되면 [실행] 버튼이 활성화됩니다."}
       </p>
+    </div>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────
+ * Human Gate Panel — 한 스킬 완료 직후 Approve / Reject 결정 대기
+ * ─────────────────────────────────────────────────────────────── */
+function HumanGatePanel({
+  skillId,
+  skillName,
+  completed,
+  total,
+  onApprove,
+  onReject,
+}: {
+  skillId: string;
+  skillName: string;
+  completed: number;
+  total: number;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  return (
+    <div className="rounded-xl border-2 border-amber-300 bg-amber-50/80 backdrop-blur-md p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="h-9 w-9 shrink-0 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+          <ShieldAlert className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-amber-900">
+              Human Gate · 검토 요청
+            </span>
+            <Badge tone="bg-white text-amber-700 border-amber-300">
+              {completed}/{total} 단계 완료
+            </Badge>
+          </div>
+          <p className="mt-1 text-xs text-amber-800/90">
+            <span className="font-mono">{skillId}</span> (
+            <span className="font-medium">{skillName}</span>) 산출물이
+            완료됐어요. 다음 단계로 진행할지 결정해주세요.
+          </p>
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
+            <button
+              onClick={onApprove}
+              className="h-8 px-3 inline-flex items-center gap-1.5 rounded-md bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 shadow-sm"
+            >
+              <ThumbsUp className="h-3.5 w-3.5" /> Approve · 다음 단계
+            </button>
+            <button
+              onClick={onReject}
+              className="h-8 px-3 inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-white text-rose-700 text-xs font-medium hover:bg-rose-50"
+            >
+              <ThumbsDown className="h-3.5 w-3.5" /> Reject · 중단
+            </button>
+            <span className="text-[11px] text-amber-700/80 ml-1">
+              Reject 시 Governance 큐로 이동합니다
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────
+ * Halted Notice — 사용자가 Reject해서 실행이 중단됨
+ * ─────────────────────────────────────────────────────────────── */
+function HaltedNotice({
+  skillName,
+  completed,
+  total,
+}: {
+  skillName: string;
+  completed: number;
+  total: number;
+}) {
+  return (
+    <div className="rounded-xl border-2 border-rose-300 bg-rose-50/80 backdrop-blur-md p-4">
+      <div className="flex items-start gap-3">
+        <div className="h-9 w-9 shrink-0 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+          <AlertCircle className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold text-rose-900">
+            실행이 중단됐어요 — Reject ({completed}/{total})
+          </div>
+          <p className="mt-1 text-xs text-rose-800/90">
+            <span className="font-medium">{skillName}</span> 단계의 산출물이
+            반려되어 워크유닛이 중단됐어요. 해당 런이{" "}
+            <span className="font-medium">Governance &gt; Review Queue</span>에
+            등록되었습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────
+ * Track Legend — 4개 트랙 (common-start / ui-track / ux-track / common-end)
+ * 현재 단계가 어느 트랙에 있는지 색칠해 표시
+ * ─────────────────────────────────────────────────────────────── */
+const TRACK_META: Array<{
+  key: "common-start" | "ui-track" | "ux-track" | "common-end";
+  label: string;
+  tone: string;
+  activeTone: string;
+}> = [
+  {
+    key: "common-start",
+    label: "Common Start",
+    tone: "bg-slate-50 text-slate-700 border-slate-200",
+    activeTone: "bg-slate-200 text-slate-900 border-slate-400",
+  },
+  {
+    key: "ui-track",
+    label: "UI Track",
+    tone: "bg-sky-50 text-sky-700 border-sky-200",
+    activeTone: "bg-sky-200 text-sky-900 border-sky-400",
+  },
+  {
+    key: "ux-track",
+    label: "UX Track",
+    tone: "bg-violet-50 text-violet-700 border-violet-200",
+    activeTone: "bg-violet-200 text-violet-900 border-violet-400",
+  },
+  {
+    key: "common-end",
+    label: "Common End",
+    tone: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    activeTone: "bg-emerald-200 text-emerald-900 border-emerald-400",
+  },
+];
+
+function TrackLegend({
+  workUnit,
+  skillStates,
+}: {
+  workUnit: WorkUnit;
+  skillStates: Record<string, SkillRunState>;
+}) {
+  if (!workUnit.tracks) return null;
+  const tracks = workUnit.tracks;
+
+  // 각 트랙별 완료 카운트
+  const stats = TRACK_META.map((t) => {
+    const ids = tracks[t.key] ?? [];
+    const done = ids.filter((id) => skillStates[id] === "done").length;
+    const running = ids.some((id) => skillStates[id] === "running");
+    return { ...t, ids, done, total: ids.length, running };
+  });
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex items-center gap-1 text-[11px] text-ink-500 mr-1">
+        <Layers className="h-3 w-3" />
+        트랙
+      </div>
+      {stats.map((s, i) => (
+        <div key={s.key} className="flex items-center gap-1">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border font-medium",
+              s.running ? s.activeTone : s.tone,
+              s.running && "ring-2 ring-offset-1 ring-current/30",
+            )}
+          >
+            {s.label}
+            <span className="font-mono opacity-70">
+              {s.done}/{s.total}
+            </span>
+          </span>
+          {i < stats.length - 1 && (
+            <ArrowRight className="h-3 w-3 text-ink-300" />
+          )}
+        </div>
+      ))}
     </div>
   );
 }

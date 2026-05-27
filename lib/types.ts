@@ -57,6 +57,15 @@ export interface WorkUnit {
   validationSkill?: string;
   owner: string;
   status: Status;
+  /** UI 트랙 / UX 트랙 분리 메타 (UX/UI 워크유닛만 사용) */
+  tracks?: {
+    "common-start"?: string[];
+    "ui-track"?: string[];
+    "ux-track"?: string[];
+    "common-end"?: string[];
+  };
+  /** 각 스킬 사이에 Human Gate (Approve/Reject) 활성화 여부 */
+  humanGate?: boolean;
 }
 
 export interface Hook {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -11,6 +11,7 @@ import {
   Eye,
   Filter,
   Target,
+  ShieldAlert,
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,12 +19,15 @@ import { Badge } from "@/components/ui/badge";
 import { ReleasePipeline } from "@/components/governance/release-pipeline";
 import { runs, workUnits } from "@/lib/data";
 import { formatRelative, cn } from "@/lib/utils";
-// MOCK: Risk Log / Decision Log / Domain Fit 모두 정적 mock
+// MOCK: Risk Log / Decision Log / Domain Fit / Halted runs 모두 정적/세션 mock
 import {
   MOCK_RISKS,
   MOCK_DECISIONS,
   RISK_TONE,
   MOCK_DOMAIN_FIT,
+  getHaltedRuns,
+  clearHaltedRun,
+  type HaltedRun,
 } from "@/mocks";
 import type { Run } from "@/lib/types";
 
@@ -49,18 +53,34 @@ export default function GovernancePage() {
     Record<string, "approved" | "rejected" | "deferred" | undefined>
   >({});
 
+  // Sandbox에서 Human Gate Reject로 들어온 런들 (localStorage)
+  const [haltedRuns, setHaltedRuns] = useState<HaltedRun[]>([]);
+  useEffect(() => {
+    setHaltedRuns(getHaltedRuns());
+    // 다른 탭에서 새로 reject되면 storage 이벤트로 갱신
+    const handler = () => setHaltedRuns(getHaltedRuns());
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  // 정적 runs + halted runs 합본 (Review Queue용)
+  const allRuns: Run[] = useMemo(
+    () => [...haltedRuns, ...runs],
+    [haltedRuns],
+  );
+
   const reviewQueue = useMemo(
-    () => applyReviewFilter(reviewFilter, runs),
-    [reviewFilter],
+    () => applyReviewFilter(reviewFilter, allRuns),
+    [reviewFilter, allRuns],
   );
 
   const counts = useMemo(
     () => ({
-      all: applyReviewFilter("all", runs).length,
-      "needs-review": runs.filter((r) => r.status === "needs-review").length,
-      pending: runs.filter((r) => r.status === "pending").length,
+      all: applyReviewFilter("all", allRuns).length,
+      "needs-review": allRuns.filter((r) => r.status === "needs-review").length,
+      pending: allRuns.filter((r) => r.status === "pending").length,
     }),
-    [],
+    [allRuns],
   );
 
   const stats = useMemo(() => {
@@ -72,12 +92,29 @@ export default function GovernancePage() {
     };
   }, [counts]);
 
+  /** 같은 id가 haltedRuns에 있으면 localStorage에서 제거 */
+  function maybeDismissHalted(runId: string) {
+    if (haltedRuns.some((h) => h.id === runId)) {
+      clearHaltedRun(runId);
+      setHaltedRuns(getHaltedRuns());
+    }
+  }
+
   function setDecision(
     id: string,
     value: "approved" | "rejected" | "deferred",
   ) {
     setDecisions((prev) => ({ ...prev, [id]: value }));
+    // halted run을 처리하면 localStorage에서 제거 (deferred는 큐에 남김)
+    if (value !== "deferred") {
+      maybeDismissHalted(id);
+    }
   }
+
+  const haltedIds = useMemo(
+    () => new Set(haltedRuns.map((r) => r.id)),
+    [haltedRuns],
+  );
 
   return (
     <>
@@ -336,17 +373,30 @@ export default function GovernancePage() {
                 <ul className="divide-y divide-ink-100">
                   {reviewQueue.map((r) => {
                     const decision = decisions[r.id];
+                    const isHalted = haltedIds.has(r.id);
                     return (
                       <li
                         key={r.id}
-                        className="py-3 flex items-start justify-between gap-3"
+                        className={cn(
+                          "py-3 flex items-start justify-between gap-3",
+                          isHalted &&
+                            "-mx-3 px-3 rounded-lg bg-rose-50/40 border-l-2 border-l-rose-400",
+                        )}
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium text-ink-900 truncate">
-                            “{r.prompt}”
+                          <div className="text-sm font-medium text-ink-900 truncate flex items-center gap-2">
+                            {isHalted && (
+                              <ShieldAlert className="h-3.5 w-3.5 text-rose-600 shrink-0" />
+                            )}
+                            <span className="truncate">“{r.prompt}”</span>
                           </div>
                           <div className="text-xs text-ink-500 mt-0.5 flex items-center gap-2 flex-wrap">
                             <span className="font-mono">{r.id}</span>
+                            {isHalted && (
+                              <Badge tone="bg-rose-50 text-rose-700 border-rose-200">
+                                Sandbox Reject
+                              </Badge>
+                            )}
                             <span>·</span>
                             <span>{r.selectedSkills.length} skills</span>
                             <span>·</span>

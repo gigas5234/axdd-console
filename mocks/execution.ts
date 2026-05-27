@@ -82,10 +82,41 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Human Gate 콜백 — 각 스킬 완료 직후 호출된다.
+ *
+ * 반환값:
+ *   "approve" → 다음 스킬 진행
+ *   "reject"  → workunit 중단 + Governance 큐로 이동 (HaltError throw)
+ *
+ * 콜백을 전달하지 않으면 게이트 없이 자동 진행 (기존 동작).
+ */
+export type HumanGateDecision = "approve" | "reject";
+export type AwaitApprovalFn = (
+  skillId: string,
+  completedCount: number,
+  totalCount: number,
+) => Promise<HumanGateDecision>;
+
+/** Reject 시 throw하는 식별 가능한 에러 — caller가 catch해 Governance에 라우팅 */
+export class HumanGateRejectedError extends Error {
+  constructor(
+    public readonly skillId: string,
+    public readonly completedCount: number,
+  ) {
+    super(`Human gate rejected at skill: ${skillId}`);
+    this.name = "HumanGateRejectedError";
+  }
+}
+
+/**
  * 통합 실행 시뮬레이터.
  *
  * Step 진행과 스킬 단위 진행을 함께 추적해서 UI가 어디까지 진행됐는지
  * 한 번에 알 수 있게 한다.
+ *
+ * **Human Gate 지원** — `opts.awaitApproval`이 주어지면 각 스킬 완료 직후
+ * 콜백을 await한다. "reject" 반환 시 `HumanGateRejectedError`를 throw해
+ * caller가 Governance 큐 등록을 처리하게 한다.
  *
  * ⚠️ LLM 교체 시: 본문 전체를 fetch streaming으로 교체.
  *   대략 매 단계마다 onUpdate({ steps, skillStates, currentSkillId })를
@@ -94,6 +125,7 @@ function sleep(ms: number): Promise<void> {
 export async function simulateExecution(
   skillIds: string[],
   onUpdate: (state: ExecutionState) => void,
+  opts?: { awaitApproval?: AwaitApprovalFn },
 ): Promise<void> {
   const steps = freshSteps();
   const skillStates = freshSkillStates(skillIds);
@@ -117,17 +149,31 @@ export async function simulateExecution(
     emit();
   }
 
-  // ─── Step 3: Output generated — 각 스킬을 차례로 실행 ───
+  // ─── Step 3: Output generated — 각 스킬을 차례로 실행 (+ Human Gate) ───
   steps[3] = { ...steps[3], status: "running" };
   emit();
 
+  let completedCount = 0;
   for (const skillId of skillIds) {
     skillStates[skillId] = "running";
     emit(skillId);
     // ⚠️ LLM 교체 시 삭제 — 각 스킬의 실제 LLM 호출로 대체
     await sleep(randomInRange(SKILL_DELAY_RANGE));
     skillStates[skillId] = "done";
+    completedCount += 1;
     emit();
+
+    // Human Gate — 마지막 스킬 외 모든 완료 직후 사용자 승인 대기
+    if (opts?.awaitApproval && completedCount < skillIds.length) {
+      const decision = await opts.awaitApproval(
+        skillId,
+        completedCount,
+        skillIds.length,
+      );
+      if (decision === "reject") {
+        throw new HumanGateRejectedError(skillId, completedCount);
+      }
+    }
   }
 
   steps[3] = { ...steps[3], status: "done" };
