@@ -54,14 +54,6 @@ export function buildResultReadme(input: ResultPayload): string {
         `- [${i.ok ? "x" : " "}]${i.severity ? ` *[${i.severity}]*` : ""} ${i.message}`,
     ),
     "",
-    validation.domainFit
-      ? [
-          `## 도메인 Fit 검증`,
-          `- 도메인 키워드 (\`${validation.domainFit.domain}\`) 등장: **${validation.domainFit.domainHits}회**`,
-          `- 다른 도메인 누출: ${validation.domainFit.otherDomainHits}회${validation.domainFit.leakedDomains.length > 0 ? ` (${validation.domainFit.leakedDomains.join(", ")})` : ""}`,
-        ].join("\n")
-      : null,
-    "",
     "---",
     `생성 출처: AXDD SkillOps Console`,
   ];
@@ -112,17 +104,6 @@ export function buildValidationMd(v: MockValidationReport): string {
     `- **Validated by**: \`${v.validatedBy}\``,
     "",
   ];
-
-  if (v.domainFit) {
-    lines.push(`## Domain Fit`);
-    lines.push(`- 도메인: \`${v.domainFit.domain}\``);
-    lines.push(`- 키워드 등장: **${v.domainFit.domainHits}회**`);
-    lines.push(`- 다른 도메인 누출: ${v.domainFit.otherDomainHits}회`);
-    if (v.domainFit.leakedDomains.length > 0) {
-      lines.push(`- 누출 도메인: ${v.domainFit.leakedDomains.join(", ")}`);
-    }
-    lines.push("");
-  }
 
   lines.push(`## Items (${v.items.length})`);
   for (const i of v.items) {

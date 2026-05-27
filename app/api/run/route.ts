@@ -48,15 +48,16 @@ function fakeDurationForMockMode(skillId: string): number {
     case "simple":
       return 600 + Math.round(Math.random() * 500); // 600~1100ms
     case "reference":
-    case "template":
-    case "asset":
+    case "asset-template":
       return 900 + Math.round(Math.random() * 800); // 900~1700ms
-    case "fullstep":
+    case "full-step":
       return 1800 + Math.round(Math.random() * 1500); // 1800~3300ms
-    case "metadata":
+    case "meta-tooling":
     case "script":
+    case "integration":
       return 700 + Math.round(Math.random() * 600); // 700~1300ms
-    case "test":
+    case "validation":
+    case "frontmatter-overlay":
       return 500 + Math.round(Math.random() * 400); // 500~900ms
     default:
       return 600;

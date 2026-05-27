@@ -16,56 +16,9 @@
     "status": "approved"
   },
   {
-    "id": "design-system-bootstrap-workunit",
-    "name": "Design System Bootstrap Work Unit",
-    "description": "AXDD가 아직 자체 디자인 시스템이 없을 때, 요구사항 + 일반 디자인 원칙만으로 초기 토큰/컴포넌트 카탈로그를 부트스트랩한다. 산출물은 콘솔 공용 자산(`data/our-design-system.md`)으로 등록되어 이후 모든 UX/UI 워크유닛이 차용.",
-    "triggerHooks": ["design-system-bootstrap-hook"],
-    "skills": [
-      "ui-ux-requirement-extract-skill",
-      "ui-foundation-build-skill",
-      "component-spec-write-skill"
-    ],
-    "input": ["customer_requirement.md"],
-    "output": [
-      "ui_ux_requirement_summary.md",
-      "ui_foundation.md",
-      "component_spec.md"
-    ],
-    "supportedCases": ["case-a"],
-    "humanGate": true,
-    "skillBranches": {
-      "ui-ux-requirement-extract-skill": {
-        "runWhen": { "hasRequirement": false },
-        "inputs": [
-          {
-            "name": "customer_requirement",
-            "type": "md",
-            "required": true,
-            "source": "user-input"
-          }
-        ],
-        "onSkip": "이미 정리된 요구사항이 있다면 그것을 그대로 다음 스킬에 전달"
-      },
-      "ui-foundation-build-skill": {
-        "runWhen": { "hasAxddDs": false },
-        "inputs": [
-          {
-            "name": "requirement",
-            "type": "md",
-            "required": true,
-            "source": "previous-skill"
-          }
-        ],
-        "onSkip": "이미 AXDD DS가 있으면 이 워크유닛 대신 UX/UI Planning 워크유닛 사용"
-      }
-    },
-    "owner": "Product Design",
-    "status": "draft"
-  },
-  {
     "id": "ux-ui-planning-workunit",
     "name": "UX/UI Planning Work Unit",
-    "description": "고객 Requirement에서 UI/UX 요구사항만 추출해 UI 트랙(요소→토큰→컴포넌트→화면)과 UX 트랙(프로세스→플로우→IA)을 순차 실행 후 마스터 핸드오프 + Figma 프롬프트까지 생성. AXDD DS 또는 고객사 DS를 차용한다 (4-Case 분기).",
+    "description": "고객 Requirement에서 UI/UX 요구사항만 추출해 디자인 토큰·컴포넌트·플로우·IA를 거쳐 마스터 핸드오프 + Figma 프롬프트를 생성한다. AxDD-SKILLS 호환 10개 atomic skill로 구성.",
     "triggerHooks": ["ux-ui-planning-hook"],
     "skills": [
       "ui-ux-requirement-extract-skill",
@@ -92,88 +45,6 @@
       "handoff.md",
       "figma_prompt.md"
     ],
-    "tracks": {
-      "common-start": ["ui-ux-requirement-extract-skill"],
-      "ui-track": [
-        "ui-element-extract-skill",
-        "ui-foundation-build-skill",
-        "component-spec-write-skill",
-        "sample-screen-design-skill"
-      ],
-      "ux-track": [
-        "ux-process-define-skill",
-        "user-flow-design-skill",
-        "ia-build-skill"
-      ],
-      "common-end": ["handoff-merge-skill", "figma-prompt-build-skill"]
-    },
-    "humanGate": true,
-    "supportedCases": ["case-b", "case-c", "case-d"],
-    "skillBranches": {
-      "ui-ux-requirement-extract-skill": {
-        "runWhen": { "hasRequirement": false },
-        "inputs": [
-          {
-            "name": "customer_requirement",
-            "type": "md",
-            "required": true,
-            "source": "user-input"
-          }
-        ],
-        "onSkip": "이미 정리된 요구사항 MD가 있으면 skip하고 그 MD를 그대로 다음 스킬에 전달"
-      },
-      "ui-element-extract-skill": {
-        "inputs": [
-          {
-            "name": "requirement_summary",
-            "type": "md",
-            "required": true,
-            "source": "previous-skill"
-          },
-          {
-            "name": "design_system_ref",
-            "type": "md",
-            "required": true,
-            "source": "customer-ds-input",
-            "fallback": "axdd-ds-catalog"
-          }
-        ]
-      },
-      "ui-foundation-build-skill": {
-        "inputs": [
-          {
-            "name": "ui_elements",
-            "type": "md",
-            "required": true,
-            "source": "previous-skill"
-          },
-          {
-            "name": "design_system_ref",
-            "type": "md",
-            "required": true,
-            "source": "customer-ds-input",
-            "fallback": "axdd-ds-catalog"
-          }
-        ]
-      },
-      "ux-process-define-skill": {
-        "inputs": [
-          {
-            "name": "requirement_summary",
-            "type": "md",
-            "required": true,
-            "source": "previous-skill"
-          },
-          {
-            "name": "ux_asset_pack",
-            "type": "folder",
-            "required": false,
-            "source": "fixed-asset",
-            "fallback": "skip-ux-track-detailing"
-          }
-        ]
-      }
-    },
     "owner": "Product Design",
     "status": "ready-for-test"
   },

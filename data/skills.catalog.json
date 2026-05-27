@@ -89,7 +89,7 @@
   {
     "id": "component-spec-write-skill",
     "name": "Component Spec Write",
-    "category": "asset",
+    "category": "asset-template",
     "description": "UI Foundation 토큰을 기반으로 컴포넌트 스펙(Variants/States/Props/Anatomy/Token mapping)을 작성한다.",
     "input": ["ui_foundation.md", "ui_ux_requirement_summary.md"],
     "output": ["component_spec.md"],
@@ -109,7 +109,7 @@
   {
     "id": "sample-screen-design-skill",
     "name": "Sample Screen Design",
-    "category": "asset",
+    "category": "asset-template",
     "description": "컴포넌트 스펙을 바탕으로 도메인 핵심 화면 3종을 ASCII 와이어프레임 + 토큰 매핑으로 설계한다.",
     "input": ["component_spec.md", "ui_foundation.md"],
     "output": ["sample_screens.md"],
@@ -129,7 +129,7 @@
   {
     "id": "ux-process-define-skill",
     "name": "UX Process Define",
-    "category": "asset",
+    "category": "asset-template",
     "description": "UX 어셋 풀세트와 고객 요구사항을 받아 Double Diamond 기반 도메인 특화 UX 프로세스 플랜을 정의한다.",
     "input": ["ui_ux_requirement_summary.md"],
     "output": ["ux_process_plan.md"],
@@ -149,7 +149,7 @@
   {
     "id": "user-flow-design-skill",
     "name": "User Flow Design",
-    "category": "template",
+    "category": "asset-template",
     "description": "UX 프로세스에서 정의된 페르소나·시나리오를 기반으로 도메인 핵심 사용자 플로우 2~3개를 state-based로 작성한다.",
     "input": ["ux_process_plan.md"],
     "output": ["user_flow.md"],
@@ -169,7 +169,7 @@
   {
     "id": "ia-build-skill",
     "name": "IA Build",
-    "category": "template",
+    "category": "asset-template",
     "description": "User Flow에서 발견된 화면을 Information Architecture(라우트 트리 + 화면 계층)로 구조화한다.",
     "input": ["user_flow.md"],
     "output": ["ia.md"],
@@ -189,7 +189,7 @@
   {
     "id": "handoff-merge-skill",
     "name": "Handoff Merge",
-    "category": "fullstep",
+    "category": "full-step",
     "description": "UI 트랙 + UX 트랙 산출물을 합쳐 프론트 개발자가 즉시 구현 가능한 마스터 핸드오프 문서를 만든다.",
     "input": [
       "ui_foundation.md",
@@ -216,7 +216,7 @@
   {
     "id": "figma-prompt-build-skill",
     "name": "Figma Prompt Build",
-    "category": "template",
+    "category": "asset-template",
     "description": "마스터 핸드오프 문서를 Figma AI / Make Designs / First Draft에 그대로 붙여 넣을 수 있는 프롬프트로 변환한다.",
     "input": ["handoff.md"],
     "output": ["figma_prompt.md"],
@@ -236,7 +236,7 @@
   {
     "id": "kickoff-report-template-skill",
     "name": "Kickoff Report Template",
-    "category": "template",
+    "category": "asset-template",
     "description": "착수보고서 표준 템플릿으로 보고서를 자동 생성한다.",
     "input": ["project_brief.md"],
     "output": ["kickoff_report.md"],
@@ -276,7 +276,7 @@
   {
     "id": "asset-metadata-search-skill",
     "name": "Asset Metadata Search",
-    "category": "metadata",
+    "category": "meta-tooling",
     "description": "자산 레포지토리 메타데이터를 검색해 관련 자산 후보를 제안한다.",
     "input": ["query.md"],
     "output": ["related_assets.md"],
@@ -296,7 +296,7 @@
   {
     "id": "output-validation-skill",
     "name": "Output Validation",
-    "category": "test",
+    "category": "validation",
     "description": "산출물 누락, 템플릿 준수, 형식 일관성을 자동 검증한다.",
     "input": ["output_bundle/"],
     "output": ["validation_report.md"],
@@ -340,7 +340,7 @@
   {
     "id": "risk-checklist-skill",
     "name": "Risk Checklist",
-    "category": "template",
+    "category": "asset-template",
     "description": "리스크/이슈 체크리스트 템플릿을 채워 risk_log를 만든다.",
     "input": ["project_brief.md"],
     "output": ["risk_log.md"],

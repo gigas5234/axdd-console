@@ -31,12 +31,13 @@ export default function SkillsPage() {
       all: skills.length,
       simple: 0,
       reference: 0,
-      template: 0,
       script: 0,
-      asset: 0,
-      fullstep: 0,
-      metadata: 0,
-      test: 0,
+      "asset-template": 0,
+      "full-step": 0,
+      "meta-tooling": 0,
+      integration: 0,
+      "frontmatter-overlay": 0,
+      validation: 0,
     };
     for (const s of skills) {
       base[s.category as SkillCategory] =

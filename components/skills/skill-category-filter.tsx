@@ -10,12 +10,13 @@ const ORDER: Filter[] = [
   "all",
   "simple",
   "reference",
-  "template",
   "script",
-  "asset",
-  "fullstep",
-  "metadata",
-  "test",
+  "asset-template",
+  "full-step",
+  "meta-tooling",
+  "integration",
+  "frontmatter-overlay",
+  "validation",
 ];
 
 export function SkillCategoryFilter({

@@ -1,15 +1,12 @@
 /**
- * MOCK: Central re-export for all MVP fake data and fake behaviors.
+ * MOCK: Central re-export.
  *
- * Goal: when the real backend lands, deleting this directory and resolving
- * the imports should be a mechanical task. Every consumer file marks its
- * mock usage with a `// MOCK:` comment so `grep -rn "MOCK:" app components lib`
- * surfaces every removal point.
+ * Phase 7 Cleanup: sandbox-presets / halted-runs / domain-fit 제거.
+ * 진짜 데이터는 reference/axdd-skills/ 정적 자산 또는 data/*.json.
  *
- * @see mocks/README.md
+ * @see PHASE_7_PLAN.md
  */
 
-/** Top-level flag — true while running on mock data/behaviors. */
 export const IS_MOCK = true;
 
 export * from "./sample-outputs";
@@ -19,7 +16,4 @@ export * from "./integrations";
 export * from "./risks";
 export * from "./decisions";
 export * from "./docs";
-export * from "./sandbox-presets";
 export * from "./activity-feed";
-export * from "./domain-fit";
-export * from "./halted-runs";

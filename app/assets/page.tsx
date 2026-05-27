@@ -12,7 +12,6 @@ import {
 import { AppHeader } from "@/components/layout/app-header";
 import { AssetCard } from "@/components/assets/asset-card";
 import { AssetDetailPanel } from "@/components/assets/asset-detail-panel";
-import { AxddDsCard } from "@/components/assets/axdd-ds-card";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -150,9 +149,6 @@ export default function AssetsPage() {
             흩어진 산출물·템플릿·레퍼런스를 한 곳에서 관리하고 중복/이관 후보를 정리하세요.
           </p>
         </section>
-
-        {/* AXDD Design System 상태 — 모든 UX/UI 스킬의 고정 자산 */}
-        <AxddDsCard />
 
         {/* Stats bar */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">

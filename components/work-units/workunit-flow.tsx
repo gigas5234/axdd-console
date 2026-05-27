@@ -25,23 +25,10 @@ import type { SkillRunState } from "@/mocks/execution";
 type SkillNodeData = {
   skill: Skill;
   runState?: SkillRunState | "idle";
-  /** UX/UI 트랙 시각화용 (있을 때만 좌측 보더에 색 띠) */
-  trackKey?: "common-start" | "ui-track" | "ux-track" | "common-end";
-};
-
-/** 트랙별 좌측 보더 색 (시각적 그룹핑) */
-const TRACK_LEFT_BORDER: Record<
-  NonNullable<SkillNodeData["trackKey"]>,
-  string
-> = {
-  "common-start": "border-l-4 border-l-slate-400",
-  "ui-track": "border-l-4 border-l-sky-400",
-  "ux-track": "border-l-4 border-l-violet-400",
-  "common-end": "border-l-4 border-l-emerald-400",
 };
 
 function SkillNode({ data }: NodeProps<SkillNodeData>) {
-  const { skill, runState = "idle", trackKey } = data;
+  const { skill, runState = "idle" } = data;
   const cat = CATEGORY_LABELS[skill.category];
   const isRunning = runState === "running";
   const isPending = runState === "pending";
@@ -52,7 +39,6 @@ function SkillNode({ data }: NodeProps<SkillNodeData>) {
       className={cn(
         "rounded-xl bg-white/85 backdrop-blur-md border px-3.5 py-2.5 min-w-[200px] shadow-glass transition relative",
         "border-ink-200",
-        trackKey && TRACK_LEFT_BORDER[trackKey],
         isRunning && "neon-cyan glow-pulse border-accent-cyan",
         isPending && "opacity-50 grayscale-[40%]",
         isDone && "ring-2 ring-emerald-300 border-emerald-300",
@@ -127,20 +113,6 @@ export function WorkUnitFlow({
   const { nodes, edges } = useMemo(() => {
     const highlights = new Set(highlightedSkillIds ?? []);
 
-    // 트랙 매핑 — id → trackKey (정의돼 있을 때만)
-    const trackByIdMap = new Map<string, SkillNodeData["trackKey"]>();
-    if (workUnit.tracks) {
-      const t = workUnit.tracks;
-      (t["common-start"] ?? []).forEach((id) =>
-        trackByIdMap.set(id, "common-start"),
-      );
-      (t["ui-track"] ?? []).forEach((id) => trackByIdMap.set(id, "ui-track"));
-      (t["ux-track"] ?? []).forEach((id) => trackByIdMap.set(id, "ux-track"));
-      (t["common-end"] ?? []).forEach((id) =>
-        trackByIdMap.set(id, "common-end"),
-      );
-    }
-
     const ns: Node<SkillNodeData>[] = [];
     workUnit.skills.forEach((id, i) => {
       const skill = skillsById[id];
@@ -154,7 +126,7 @@ export function WorkUnitFlow({
         id,
         type: "skill",
         position: { x: i * 260, y: 0 },
-        data: { skill, runState, trackKey: trackByIdMap.get(id) },
+        data: { skill, runState },
       });
     });
 
