@@ -151,18 +151,11 @@ function yamlQuote(value: string): string {
   return `"${escaped}"`;
 }
 
-function mapStatusToAxdd(status: string | undefined): string {
-  // 콘솔의 13개 status → AXDD Draft/Accepted 2단계로 정규화
-  if (!status) return "Draft";
-  const acceptedSet = new Set([
-    "approved",
-    "released",
-    "release-candidate",
-    "verified",
-    "passed",
-    "active",
-  ]);
-  return acceptedSet.has(status) ? "Accepted" : "Draft";
+function mapStatusToAxdd(_status: string | undefined): string {
+  // Phase 7-F: Enterprise Export 시점은 항상 Draft.
+  // 사용자가 zip을 다운받은 직후는 "리뷰 전 초안" 상태가 맞고,
+  // Accepted는 axe_check + ToyProject Run + Reviewer 승인 후 부여 (governance-lite/ACCEPTANCE_RULE).
+  return "Draft";
 }
 
 function collectDependencyFiles(skill: Skill): string[] {

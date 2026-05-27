@@ -109,25 +109,30 @@ export function buildRootCatalog(
     "|-------|--------|------|--------|",
   ];
 
-  // Index — 모든 스킬 한 줄씩
+  // Index — 모든 스킬 한 줄씩 (Phase 7-F: Enterprise Export 시점은 모두 Draft)
   const allSkillsForIndex = T_ORDER.flatMap((cat) => groups.get(cat) ?? []);
   for (const s of allSkillsForIndex) {
     const grp = CATEGORY_TO_GROUP[s.category];
     lines.push(
-      `| ${s.name} | ${grp.tType} | [skills/${s.id}](skills/${s.id}/SKILL.md) | ${s.status} |`,
+      `| ${s.name} | ${grp.tType} | [skills/${s.id}](skills/${s.id}/SKILL.md) | Draft |`,
     );
   }
 
-  // T1~T8 + AXDD Extension 각 섹션
+  // T1~T8 + AXDD Extension 각 섹션 — Phase 7-F: 빈 섹션도 모두 표시 (taxonomy 명시)
   for (const cat of T_ORDER) {
-    const list = groups.get(cat);
-    if (!list || list.length === 0) continue;
+    const list = groups.get(cat) ?? [];
     const grp = CATEGORY_TO_GROUP[cat];
     lines.push("");
     lines.push(`## ${grp.tType} — ${grp.label}`);
     lines.push("");
     lines.push(`> ${grp.description}`);
     lines.push("");
+
+    if (list.length === 0) {
+      lines.push("_No generated skills in this export._");
+      continue;
+    }
+
     lines.push("| Skill | Path | Purpose |");
     lines.push("|-------|------|---------|");
     for (const s of list) {

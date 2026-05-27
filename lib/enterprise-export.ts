@@ -27,6 +27,7 @@ import JSZip from "jszip";
 import type { Skill, WorkUnit } from "./types";
 import { buildAxddFrontmatter, buildCompositeFrontmatter } from "./frontmatter-builder";
 import { buildRootCatalog } from "./catalog-generator";
+import { buildUxuiContent } from "./uxui-content";
 
 const REFERENCE_DIR = "reference/axdd-skills";
 
@@ -95,13 +96,9 @@ export async function buildEnterpriseRepository(opts: {
       })),
     ),
   );
-  root.file(
-    "AGENT_CREATION_GUIDE.md",
-    await tryReadOrFallback(
-      path.join(cwd, REFERENCE_DIR, "AGENT_CREATION_GUIDE.md"),
-      "# Agent Creation Guide\n\n(reference 자산 미존재)",
-    ),
-  );
+  // Phase 7-F: AGENT_CREATION_GUIDE는 Enterprise Lite 구조에 맞춰 동적 생성
+  // (reference 원본은 skill-creator-agent / docs/ / t1~t8 폴더를 참조하지만 Lite에는 없음)
+  root.file("AGENT_CREATION_GUIDE.md", buildAgentCreationGuide(includedSkills));
 
   // ─── 2. skills/<skill-name>/SKILL.md (flat) ───
   const skillsFolder = root.folder("skills");
@@ -153,11 +150,14 @@ export async function buildEnterpriseRepository(opts: {
     }
   }
 
-  // ─── 4. governance-lite/ (reference에서 정적 복사) ───
+  // ─── 4. governance-lite/ (reference에서 정적 복사 + Phase 7-F 정규화) ───
   const govFolder = root.folder("governance-lite");
   if (govFolder) {
     const govSrcDir = path.join(cwd, REFERENCE_DIR, "governance-lite");
-    await copyDir(govFolder, govSrcDir);
+    await copyDirWithRename(govFolder, govSrcDir, {
+      // PR_REVIEW_CHECKLIST.md → PR_CHECKLIST.md (사용자 피드백 정규화)
+      "PR_REVIEW_CHECKLIST.md": "PR_CHECKLIST.md",
+    });
   }
 
   // ─── 5. validation/ ───
@@ -177,11 +177,110 @@ export async function buildEnterpriseRepository(opts: {
     examplesFolder.file("README.md", EXAMPLES_README);
   }
 
+  // ─── 7. Quality Check (Phase 7-F) ───
+  // 모든 생성된 파일을 스캔해 scaffold 마커가 남았는지 확인.
+  // 결과는 quality-report.md로 examples/ 에 첨부.
+  const qualityReport = await runQualityCheck(zip);
+  if (examplesFolder) {
+    examplesFolder.file("quality-report.md", qualityReport);
+  }
+
   return zip.generateAsync({
     type: "uint8array",
     compression: "DEFLATE",
     compressionOptions: { level: 6 },
   });
+}
+
+/**
+ * Phase 7-F: zip 안의 모든 텍스트 파일을 스캔해 scaffold 마커 검출.
+ *
+ * 검출되면 quality-report.md에 기록.
+ * 실패가 아닌 informational warn — 디자인팀이 추후 채울 여지.
+ */
+async function runQualityCheck(zip: JSZip): Promise<string> {
+  const SCAFFOLD_MARKERS = [
+    "Skeleton file auto-generated",
+    "실제 자료가 채워질 자리입니다",
+    "상태: scaffold",
+    "TODO:",
+    "__TODO__",
+  ];
+
+  const findings: { path: string; markers: string[] }[] = [];
+  let scannedCount = 0;
+
+  // zip.files는 모든 파일 (full path) 기준
+  for (const [filePath, file] of Object.entries(zip.files)) {
+    if (file.dir) continue;
+    if (!/\.(md|txt|yaml|yml)$/.test(filePath)) continue;
+    // quality-report 자체는 제외
+    if (filePath.endsWith("quality-report.md")) continue;
+
+    scannedCount++;
+    try {
+      const content = await file.async("string");
+      const matched: string[] = [];
+      for (const marker of SCAFFOLD_MARKERS) {
+        if (content.includes(marker)) matched.push(marker);
+      }
+      if (matched.length > 0) {
+        findings.push({ path: filePath, markers: matched });
+      }
+    } catch {
+      // skip
+    }
+  }
+
+  const lines: string[] = [
+    "# Quality Report — Enterprise Export",
+    "",
+    `> Generated: ${new Date().toISOString()}`,
+    `> Files scanned: ${scannedCount}`,
+    `> Files with scaffold markers: ${findings.length}`,
+    "",
+    "## Scaffold marker policy",
+    "",
+    "이 보고서는 zip 안의 텍스트 파일에서 scaffold 잔재 마커를 검출한 결과입니다.",
+    "검출 ≠ 실패. Enterprise Lite는 일부 placeholder (예: TODO, __TODO__)를 허용해",
+    "디자인팀이 추후 실제 값을 채울 수 있는 여지를 둡니다.",
+    "",
+    "그러나 다음 마커는 **반드시 제거** 권장:",
+    "",
+    "- `Skeleton file auto-generated`",
+    "- `실제 자료가 채워질 자리입니다`",
+    "- `상태: scaffold`",
+    "",
+    "## Findings",
+    "",
+  ];
+
+  if (findings.length === 0) {
+    lines.push("✅ **No scaffold markers detected.** 모든 파일이 실제 컨텐츠로 채워져 있습니다.");
+  } else {
+    lines.push("| File | Markers found |");
+    lines.push("|------|---------------|");
+    for (const f of findings) {
+      lines.push(`| \`${f.path}\` | ${f.markers.join(", ")} |`);
+    }
+    lines.push("");
+    lines.push("### 권장 조치");
+    lines.push("");
+    lines.push("- `TODO:` / `__TODO__` 마커: 디자인팀이 실제 값으로 교체 (의도된 placeholder)");
+    lines.push("- `Skeleton file auto-generated`: 실제 컨텐츠로 교체 필수");
+    lines.push("- `상태: scaffold`: 실제 자료 작성 후 메타 제거");
+  }
+
+  lines.push("");
+  lines.push("## 다음 단계");
+  lines.push("");
+  lines.push("1. 디자인팀이 references/ 자료를 사내 표준에 맞춰 보강");
+  lines.push("2. `axe_check.py validate-skill skills/<name>` 으로 frontmatter 검증");
+  lines.push("3. `axe_check.py validate-workunit work-units/axdd-ux-ui-standard-kit --lite` 으로 워크유닛 검증");
+  lines.push("4. PR로 사내 GitHub에 머지");
+  lines.push("5. governance-lite/ACCEPTANCE_RULE 따라 Draft → Accepted 승급");
+
+  return lines.join("\n") + "\n";
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -268,9 +367,10 @@ async function copySkillSubdirs(
         }
       }
 
-      // 3차: 스켈레톤 자동 생성 (회의록 정합)
+      // 3차: 실제 UX/UI 컨텐츠 자동 생성 (Phase 7-F)
+      // scaffold placeholder 사용 X — 실제 사용 가능한 컨텐츠
       if (content === null) {
-        content = buildSkeletonContent(sub, basename, skill);
+        content = buildUxuiContent(sub, basename, skill);
       }
 
       subFolder.file(basename, content);
@@ -278,240 +378,6 @@ async function copySkillSubdirs(
   }
 }
 
-/**
- * imaginary path에 대해 자립적으로 동작 가능한 스켈레톤 컨텐츠 생성.
- * Claude Code가 zip을 풀어 사용할 때 "파일이 없어 못 읽음" 상황 회피.
- */
-function buildSkeletonContent(
-  sub: "references" | "assets" | "scripts" | "tests",
-  basename: string,
-  skill: Skill,
-): string {
-  const header = `<!--
-  Skeleton file auto-generated by AXDD SkillOps Console.
-
-  실제 자료가 채워질 자리입니다. 디자인팀/QA팀이 이 파일을 직접 편집해
-  자료를 채우거나, 다른 reference로 교체하세요.
-
-  Skill: ${skill.id}
-  File:  ${sub}/${basename}
--->
-
-`;
-
-  switch (sub) {
-    case "references":
-      return header + buildReferenceSkeleton(basename, skill);
-    case "assets":
-      return header + buildAssetSkeleton(basename, skill);
-    case "scripts":
-      return header + buildScriptSkeleton(basename, skill);
-    case "tests":
-      return header + buildTestSkeleton(basename, skill);
-  }
-}
-
-function buildReferenceSkeleton(basename: string, skill: Skill): string {
-  // 파일명별로 의미 있는 스켈레톤 분기
-  if (/design-system/i.test(basename)) {
-    return `# Design System Reference (Scaffold)
-
-> 상태: **scaffold** — 디자인팀이 실제 자료를 채워야 합니다.
-> 참조 스킬: \`${skill.id}\`
-
-## 1. Color Tokens
-
-<!-- TODO: 디자인팀에서 토큰 채우기 -->
-
-| Token | Hex | Usage |
-|---|---|---|
-| \`color/brand/primary\` | \`#__TODO__\` | 메인 액션 |
-| \`color/brand/accent\` | \`#__TODO__\` | 강조 액션 |
-| \`color/surface/base\` | \`#__TODO__\` | 페이지 배경 |
-| \`color/surface/elevated\` | \`#__TODO__\` | 카드 배경 |
-| \`color/ink/primary\` | \`#__TODO__\` | 본문 텍스트 |
-| \`color/ink/secondary\` | \`#__TODO__\` | 보조 텍스트 |
-| \`color/border/default\` | \`#__TODO__\` | 기본 보더 |
-| \`color/status/success\` | \`#__TODO__\` | 성공 |
-| \`color/status/warning\` | \`#__TODO__\` | 경고 |
-| \`color/status/error\` | \`#__TODO__\` | 에러 |
-
-## 2. Typography
-
-| Scale | Size | Line-height | Usage |
-|---|---|---|---|
-| \`text/h1\` | \`__TODO__\` | \`__TODO__\` | 페이지 헤더 |
-| \`text/h2\` | \`__TODO__\` | \`__TODO__\` | 섹션 |
-| \`text/body\` | \`__TODO__\` | \`__TODO__\` | 본문 |
-| \`text/caption\` | \`__TODO__\` | \`__TODO__\` | 캡션 |
-
-## 3. Spacing (4의 배수)
-
-| Token | Value |
-|---|---|
-| \`space/xs\` | \`4px\` |
-| \`space/sm\` | \`8px\` |
-| \`space/md\` | \`12px\` |
-| \`space/lg\` | \`16px\` |
-| \`space/xl\` | \`24px\` |
-
-## 4. Components (이름만 — 상세는 component-spec-write-skill 산출물 참조)
-
-- Button (primary / secondary / ghost)
-- Card (default / elevated)
-- Input (text / search / number)
-- Modal (sm / md / lg)
-- Toast (success / warning / error / info)
-`;
-  }
-  if (/keyword|categoriz|patterns/i.test(basename)) {
-    return `# ${basename.replace(/\.md$/, "").replace(/-/g, " ")}
-
-> 상태: **scaffold**
-> 참조 스킬: \`${skill.id}\`
-
-## 분류 룰 (TODO: 실제 룰 채우기)
-
-| 카테고리 | 키워드 / 패턴 | 비고 |
-|---|---|---|
-| (TODO) | (TODO) | (TODO) |
-
-## 예시
-
-(TODO)
-`;
-  }
-  if (/method|process|guide/i.test(basename)) {
-    return `# ${basename.replace(/\.md$/, "").replace(/-/g, " ")}
-
-> 상태: **scaffold**
-> 참조 스킬: \`${skill.id}\`
-
-## 방법론 / 가이드 (TODO)
-
-(이 파일은 reference 자료로 진행 시 필요할 룰·가이드를 담는 자리입니다.)
-`;
-  }
-  return `# ${basename.replace(/\.md$/, "").replace(/-/g, " ")} (Scaffold)
-
-> 상태: **scaffold** — 실제 자료가 채워질 자리입니다.
-> 참조 스킬: \`${skill.id}\`
-
-## TODO
-
-이 파일에 채워질 내용:
-- (TODO: 채워주세요)
-
-## 사용 시점
-
-스킬 \`${skill.id}\`이 이 reference를 참조합니다. 상세는 상위 SKILL.md 참조.
-`;
-}
-
-function buildAssetSkeleton(basename: string, skill: Skill): string {
-  // 템플릿 자산 — placeholder 표
-  if (/template/i.test(basename)) {
-    return `# ${basename.replace(/\.md$/, "").replace(/-/g, " ")} Template
-
-> 상태: **scaffold template**
-> 참조 스킬: \`${skill.id}\`
-
-## 사용법
-
-이 템플릿을 복사해 placeholder를 채우세요. \`{{UPPER_SNAKE}}\` 형식.
-
----
-
-# {{PROJECT_NAME}}
-
-## Overview
-{{OVERVIEW}}
-
-## Sections
-- {{SECTION_1}}
-- {{SECTION_2}}
-- {{SECTION_3}}
-
-## Metadata
-- Owner: {{OWNER}}
-- Status: {{STATUS}}
-- Date: {{DATE}}
-`;
-  }
-  return `# ${basename.replace(/\.md$/, "").replace(/-/g, " ")}
-
-> 상태: **scaffold asset**
-> 참조 스킬: \`${skill.id}\`
-
-(TODO: 실제 자산 컨텐츠 채우기)
-`;
-}
-
-function buildScriptSkeleton(basename: string, _skill: Skill): string {
-  if (basename.endsWith(".py")) {
-    return `#!/usr/bin/env python3
-"""${basename} — Scaffold script.
-
-실제 로직이 채워질 자리입니다. 다음 패턴을 따르세요:
-
-  - argparse로 입력 받기
-  - JSON으로 출력 (stdout)
-  - 실패 시 non-zero exit
-  - secret 패턴 금지
-"""
-
-import sys
-
-
-def main() -> int:
-    print("TODO: implement", file=sys.stderr)
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
-`;
-  }
-  if (basename.endsWith(".html")) {
-    return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>${basename}</title>
-</head>
-<body>
-  <h1>${basename} (Scaffold)</h1>
-  <p>TODO: 실제 컨텐츠 채우기</p>
-</body>
-</html>
-`;
-  }
-  return `# ${basename} (scaffold)\n\n# TODO: 채우기\n`;
-}
-
-function buildTestSkeleton(basename: string, skill: Skill): string {
-  return `# ${basename.replace(/\.md$/, "").replace(/-/g, " ")}
-
-> 상태: **scaffold test**
-> 참조 스킬: \`${skill.id}\`
-
-## 체크리스트
-
-- [ ] (TODO: 검증 항목 1)
-- [ ] (TODO: 검증 항목 2)
-- [ ] (TODO: 검증 항목 3)
-
-## Pass 기준
-
-- 모든 항목 체크
-- \`python3 ../../validation/axe_check.py validate-skill ../\` 통과
-
-## 실패 시 처리
-
-- 사유를 \`validation-log-template.md\` 형식으로 기록
-- 해당 산출물 Reject 후 재실행
-`;
-}
 
 async function copyDir(zipFolder: JSZip, srcDir: string): Promise<void> {
   try {
@@ -522,6 +388,32 @@ async function copyDir(zipFolder: JSZip, srcDir: string): Promise<void> {
       try {
         const content = await fs.readFile(filePath, "utf-8");
         zipFolder.file(ent.name, content);
+      } catch {
+        // skip
+      }
+    }
+  } catch {
+    // skip
+  }
+}
+
+/**
+ * copyDir + 파일명 매핑. renameMap[원본명] = 목적지명.
+ */
+async function copyDirWithRename(
+  zipFolder: JSZip,
+  srcDir: string,
+  renameMap: Record<string, string>,
+): Promise<void> {
+  try {
+    const entries = await fs.readdir(srcDir, { withFileTypes: true });
+    for (const ent of entries) {
+      if (!ent.isFile()) continue;
+      const filePath = path.join(srcDir, ent.name);
+      try {
+        const content = await fs.readFile(filePath, "utf-8");
+        const targetName = renameMap[ent.name] ?? ent.name;
+        zipFolder.file(targetName, content);
       } catch {
         // skip
       }
@@ -548,7 +440,9 @@ function defaultCompositeKits(workUnits: WorkUnit[]): CompositeKit[] {
 }
 
 function buildWorkUnitYaml(kit: CompositeKit): string {
-  // AxDD-SKILLS reference의 workunit.yaml과 호환되는 형태
+  // AxDD-SKILLS reference의 workunit.yaml + Enterprise Lite 확장.
+  // axe_check.py validate-workunit (--lite) 호환.
+  const artifacts = kit.outputs ?? [];
   const lines = [
     "apiVersion: axdd/v1alpha1",
     "kind: WorkUnit",
@@ -560,12 +454,20 @@ function buildWorkUnitYaml(kit: CompositeKit): string {
     `spec:`,
     `  description: ${JSON.stringify(kit.description)}`,
     `  category: ${kit.category ?? "ux-ui"}`,
+    `  # Enterprise Lite: role packs / handoffs는 placeholder. axe_check.py --lite로 검증.`,
+    `  requiredRolePacks:`,
+    `    - ux-ui-designer`,
+    `  requiredHandoffs:`,
+    `    - ux-ui-standard-handoff`,
+    `  requiredArtifacts:`,
+    ...artifacts.map((a) => `    - ${a}`),
     `  requiredSkills:`,
     ...kit.requiredSkillIds.map((s) => `    - ${s}`),
     `  outputs:`,
-    ...(kit.outputs ?? []).map((o) => `    - ${o}`),
+    ...artifacts.map((o) => `    - ${o}`),
     `  closureCriteria:`,
     `    - required_skills_exist`,
+    `    - required_artifacts_exist`,
     `    - catalog_entries_exist`,
     `    - frontmatter_valid`,
     `    - no_secret_patterns`,
@@ -682,7 +584,7 @@ done
 
 - **Atomic Skills** (${includedSkills.length}개) — \`skills/\`
 - **Composite Kits** (${compositeKits.length}개) — \`work-units/\`
-- **Governance Rules** — \`governance-lite/\`
+- **Governance Rules** — \`governance-lite/\` (ACCEPTANCE_RULE / OWNER_TABLE / PR_CHECKLIST / VERSION_RULE)
 - **Validation Script** — \`validation/axe_check.py\`
 - **Agent Creation Guide** — \`AGENT_CREATION_GUIDE.md\`
 
@@ -740,6 +642,194 @@ metadata:
 ---
 
 Generated by AXDD SkillOps Console.
+`;
+}
+
+/**
+ * Phase 7-F: Enterprise Lite 호환 AGENT_CREATION_GUIDE 동적 생성.
+ *
+ * reference 원본은 skill-creator-agent / t1-t8 / docs/ 를 참조해 broken link 발생.
+ * 이 함수는 Enterprise zip 안의 실제 파일만 참조하는 가이드를 만든다.
+ */
+function buildAgentCreationGuide(includedSkills: Skill[]): string {
+  const skillList = includedSkills
+    .map((s) => `- [\`skills/${s.id}/SKILL.md\`](skills/${s.id}/SKILL.md) — ${s.name}`)
+    .join("\n");
+
+  return `# AGENT_CREATION_GUIDE — AXDD Enterprise Lite
+
+> 이 가이드는 **AxDD-SKILLS Enterprise Lite zip** 안의 실제 구조만 참조합니다.
+> Generic AxDD-SKILLS reference의 skill-creator-agent / t1-t8 sample / docs/ 폴더는
+> 이 zip에 포함되지 않으므로 본 가이드에서 다루지 않습니다.
+
+## 1. 이 zip의 구조
+
+\`\`\`
+axdd-skills-enterprise/
+├── README.md                       (시작 문서)
+├── CATALOG.md                      (T1~T8 + AXDD Extensions 인덱스)
+├── AGENT_CREATION_GUIDE.md         (이 문서)
+├── skills/                         (flat — 10개 UX/UI atomic skill)
+│   └── <skill-name>/
+│       ├── SKILL.md                (표준 frontmatter + AXDD metadata)
+│       ├── references/             (있을 때)
+│       ├── assets/                 (있을 때)
+│       └── tests/                  (있을 때)
+├── work-units/                     (composite kit)
+│   └── axdd-ux-ui-standard-kit/
+│       ├── workunit.yaml
+│       ├── SKILL.md
+│       └── CATALOG.md
+├── governance-lite/                (운영 룰)
+├── validation/                     (axe_check.py + log template)
+└── examples/
+\`\`\`
+
+## 2. 포함된 UX/UI atomic skill
+
+${skillList}
+
+## 3. 새 UX/UI atomic skill 만들기
+
+### 3.1 디렉토리 생성
+
+\`\`\`bash
+mkdir -p skills/<new-skill-name>
+cd skills/<new-skill-name>
+\`\`\`
+
+규칙:
+- 폴더명 = kebab-case + \`-skill\` suffix (선택)
+- \`SKILL.md\` 1개 필수
+- \`references/\` / \`assets/\` / \`tests/\` 는 선택 — 필요할 때만 폴더 생성
+
+### 3.2 SKILL.md frontmatter
+
+\`\`\`yaml
+---
+name: my-new-skill
+description: Use this skill when ... and produce ... output.
+metadata:
+  axdd.title: "My New Skill"
+  axdd.version: "0.1.0"
+  axdd.type: "T2-reference-heavy"     # T1~T8 또는 AXDD-validation
+  axdd.category: "ux-ui"
+  axdd.owner: "Product Design"
+  axdd.status: "Draft"
+  axdd.tags: "tag1,tag2,tag3"
+  axdd.inputs: "input_a.md,input_b.md"
+  axdd.outputs: "output.md"
+  axdd.dependencies.files: "references/foo.md,assets/bar.md"
+  axdd.dependencies.skills: ""
+---
+\`\`\`
+
+규칙:
+- **name** : 디렉토리명과 일치, kebab-case, ≤64자
+- **description** : 1~1024자, *what* + *when* 모두 포함
+- **metadata** : 모든 값 string (YAML array / nested object 금지)
+- AXDD 확장 필드는 \`metadata\` 안에만 (top-level 금지)
+
+### 3.3 SKILL.md 본문 (권장 섹션)
+
+\`\`\`md
+# {{Skill Name}}
+
+## 🎯 Purpose
+한 문장으로 이 스킬이 무엇을 하는지.
+
+## 📥 Input Slots
+| 슬롯 | 형식 | 필수 | 소스 |
+|---|---|---|---|
+| ... | ... | ... | ... |
+
+## 📤 Output
+- \`output.md\` — 한 줄 설명
+
+## 🔧 동작
+1. 단계
+2. 단계
+
+## ✅ Validation
+- 검증 기준 ...
+
+## 📚 References
+- \`references/foo.md\` — 설명
+\`\`\`
+
+### 3.4 references/assets/tests 배치
+
+| 폴더 | 용도 | 예시 |
+|---|---|---|
+| references/ | 도메인 자료·룰·가이드 (참고) | \`axdd-design-system.md\` |
+| assets/ | 산출물 템플릿 | \`component-spec-template.md\` |
+| tests/ | 검증 체크리스트 | \`my-skill-check.md\` |
+| scripts/ | 실행 스크립트 (선택) | \`process.py\` |
+
+규칙:
+- 한 level 깊이만 (\`references/sub/foo.md\` 금지)
+- 모든 파일은 SKILL.md의 \`axdd.dependencies.files\`에 등재되어야 함
+
+## 4. CATALOG.md 업데이트
+
+루트 \`CATALOG.md\`의 해당 T-type 섹션에 추가:
+
+\`\`\`md
+## T2 — Reference-heavy
+| Skill | Path | Purpose |
+|---|---|---|
+| My New Skill | \`skills/my-new-skill/\` | (one-line) |
+\`\`\`
+
+Index 표에도 추가.
+
+## 5. 검증
+
+\`\`\`bash
+# 새 skill frontmatter 검증
+python3 validation/axe_check.py validate-skill skills/my-new-skill
+
+# 모든 skill 일괄 검증
+for d in skills/*; do python3 validation/axe_check.py validate-skill "$d"; done
+
+# Secret 패턴 스캔
+python3 validation/axe_check.py scan-secrets skills
+
+# Work Unit 검증 (Lite mode)
+python3 validation/axe_check.py validate-workunit work-units/axdd-ux-ui-standard-kit --lite
+\`\`\`
+
+## 6. Work Unit에 skill 추가하기
+
+\`work-units/<kit>/workunit.yaml\` 의 \`spec.requiredSkills\` 에 새 skill ID 추가:
+
+\`\`\`yaml
+spec:
+  requiredSkills:
+    - existing-skill-1
+    - my-new-skill        # 추가
+\`\`\`
+
+\`spec.requiredArtifacts\` 에 새 skill의 출력 파일명도 등재.
+
+## 7. Anti-patterns (피해야 할 것)
+
+- ❌ 500+줄 SKILL.md 본문 → \`references/\`로 분리
+- ❌ 중첩 폴더 (\`references/sub/topic.md\`) → 한 단계만
+- ❌ 인라인 hex 값 (\`#FF0000\`) → 토큰 사용
+- ❌ description 1024자 초과 → 줄이거나 \`references/\` 활용
+- ❌ external URL 직접 노출 → reference 파일로 정리
+- ❌ metadata 값에 YAML array / object → 콤마 구분 string 사용
+
+## 8. 도움말
+
+- 표준 spec: https://agentskills.io/specification
+- Validation 로그 양식: \`validation/validation-log-template.md\`
+- 운영 룰: \`governance-lite/\`
+
+---
+
+Generated by AXDD SkillOps Console — Enterprise Lite Export.
 `;
 }
 

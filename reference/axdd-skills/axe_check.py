@@ -191,7 +191,8 @@ def cmd_validate_workunit(args: argparse.Namespace) -> int:
     errors: list[str] = []
     wu_dir = resolve_pack_path(args.path)
     wu_yaml = wu_dir / "workunit.yaml"
-    print(f"validate-workunit: {wu_dir}")
+    lite = getattr(args, "lite", False)
+    print(f"validate-workunit{' (Enterprise Lite)' if lite else ''}: {wu_dir}")
     if not wu_yaml.is_file():
         fail("workunit.yaml missing", errors)
         return 1
@@ -210,24 +211,49 @@ def cmd_validate_workunit(args: argparse.Namespace) -> int:
         else:
             ok(f"spec.{key}")
 
+    # Enterprise Lite: requiredSkills 추가 검증
+    if lite:
+        if "requiredSkills" in spec and spec["requiredSkills"]:
+            ok(f"spec.requiredSkills ({len(spec['requiredSkills'])} skills)")
+            # 각 skill이 ../../skills/<id>/ 에 존재하는지 확인
+            skills_root = wu_dir.parent.parent / "skills"
+            for sid in spec["requiredSkills"]:
+                skill_dir = skills_root / sid
+                if not (skill_dir / "SKILL.md").is_file():
+                    fail(f"requiredSkill not found: skills/{sid}/SKILL.md", errors)
+                else:
+                    ok(f"skill: {sid}")
+        else:
+            fail("spec.requiredSkills missing or empty (Lite mode)", errors)
+
+    # Role pack / Handoff 검사 — Lite 모드에선 폴더 없으면 warn만, 통상 모드에선 fail
     for role in spec.get("requiredRolePacks") or []:
         role_dir = HARNESS_ROOT / "roles" / role
         if not (role_dir / "pack.yaml").is_file():
-            fail(f"role pack not found: roles/{role}", errors)
+            if lite:
+                print(f"  WARN  role pack placeholder (Lite OK): roles/{role}")
+            else:
+                fail(f"role pack not found: roles/{role}", errors)
         else:
             ok(f"role pack: {role}")
 
     for sp in spec.get("solutionPacks") or []:
         sp_dir = HARNESS_ROOT / "solution-packs" / sp
         if not (sp_dir / "pack.yaml").is_file():
-            fail(f"solution pack not found: solution-packs/{sp}", errors)
+            if lite:
+                print(f"  WARN  solution pack placeholder (Lite OK): {sp}")
+            else:
+                fail(f"solution pack not found: solution-packs/{sp}", errors)
         else:
             ok(f"solution pack: {sp}")
 
     for ho in spec.get("requiredHandoffs") or []:
         ho_path = HARNESS_ROOT / "handoffs" / f"{ho}.md"
         if not ho_path.is_file():
-            fail(f"handoff not found: handoffs/{ho}.md", errors)
+            if lite:
+                print(f"  WARN  handoff placeholder (Lite OK): handoffs/{ho}.md")
+            else:
+                fail(f"handoff not found: handoffs/{ho}.md", errors)
         else:
             ok(f"handoff: {ho}")
 
@@ -296,6 +322,11 @@ def main() -> int:
 
     p_wu = sub.add_parser("validate-workunit", help="Validate work unit pack")
     p_wu.add_argument("path", help="e.g. work-units/orderflow-fullstack-light")
+    p_wu.add_argument(
+        "--lite",
+        action="store_true",
+        help="Enterprise Lite mode: warn (not fail) on missing role/handoff/solution pack files, validate requiredSkills",
+    )
     p_wu.set_defaults(func=cmd_validate_workunit)
 
     p_sec = sub.add_parser("scan-secrets", help="Scan for obvious secret patterns")
